@@ -37,13 +37,19 @@ git clone -b development https://github.com/Cyber-Square-Pro/cs-learn-track.git
 ```
 
 2. Goto project directory    
-   ``` cd attendance-tracking-system```
+   ```
+   cd attendance-tracking-system
+   ```
 
-3. Install dependencies  
-   ``` npm install ```  
+4. Install dependencies  
+   ```
+    npm install
+   ```  
 
-4. Start the development server  
-   ``` npm run dev ```  
+6. Start the development server  
+   ```
+   npm run dev
+    ```  
 
 4. Open the app in your browser:  
     Visit http://localhost:3000.  

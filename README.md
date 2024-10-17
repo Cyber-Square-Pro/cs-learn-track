@@ -38,7 +38,7 @@ Hosting: AWS
 
 2. Goto project directory    
    ```
-   cd attendance-tracking-system
+   cd cs-learn-track
    ```
 
 3. Install dependencies  

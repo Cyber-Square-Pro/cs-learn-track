@@ -8,8 +8,8 @@
 # 🛠️ Features
 ## Admin Features:
 ➕ Add Students
-🏷️ Create Batches 
-🗓️ Schedule Classes  
+🏷️ Create Batches  
+🗓️ Schedule Classes    
 👥 Assign Students to Batches  
 📋 View Attendance & Reports  
 🗂️ Manage Student Profiles  
@@ -31,20 +31,20 @@ Hosting: AWS
 
 ## 📝 Installation Guide
 
-1. Clone the repository,  
+1. Clone the repository,    
    
 ```bash
 git clone -b development https://github.com/Cyber-Square-Pro/cs-learn-track.git
 ```
 
-2. Goto project directory
+2. Goto project directory    
    ``` cd attendance-tracking-system```
 
-3. Install dependencies
-   ``` npm install ```
+3. Install dependencies  
+   ``` npm install ```  
 
-4. Start the development server
-   ``` npm run dev ```
+4. Start the development server  
+   ``` npm run dev ```  
 
-4. Open the app in your browser:
-    Visit http://localhost:8000.
+4. Open the app in your browser:  
+    Visit http://localhost:8000.  

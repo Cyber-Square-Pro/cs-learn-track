@@ -16,8 +16,8 @@
 🗑️ Remove Students
 
 ## 👨‍🎓 Student Features
-🔑 Login
-📸 Upload Images
+🔑 Login  
+📸 Upload Images  
 🔄 Update Profile & Password
 🗓️ View Class Schedule
 🎓 Attend Sessions

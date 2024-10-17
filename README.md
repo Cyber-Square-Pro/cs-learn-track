@@ -9,29 +9,29 @@
 ## Admin Features:
 ➕ Add Students
 🏷️ Create Batches 
-🗓️ Schedule Classes
-👥 Assign Students to Batches
-📋 View Attendance & Reports
-🗂️ Manage Student Profiles
-🗑️ Remove Students
+🗓️ Schedule Classes  
+👥 Assign Students to Batches  
+📋 View Attendance & Reports  
+🗂️ Manage Student Profiles  
+🗑️ Remove Students  
 
-## 👨‍🎓 Student Features
+## 👨‍🎓 Student Features  
 🔑 Login  
-📸 Upload Images  
-🔄 Update Profile & Password
-🗓️ View Class Schedule
-🎓 Attend Sessions
-✅ Check Attendance
+📸 Upload Images   
+🔄 Update Profile & Password  
+🗓️ View Class Schedule  
+🎓 Attend Sessions  
+✅ Check Attendance  
 
 ## 🚀 Technology Stack
-Frontend:NextJS
-Backend: Django
-Database: PostgreSQL
-Hosting: AWS
+Frontend:NextJS  
+Backend: Django  
+Database: PostgreSQL  
+Hosting: AWS  
 
 ## 📝 Installation Guide
 
-1. Clone the repository,
+1. Clone the repository,  
    
 ```bash
 git clone -b development https://github.com/Cyber-Square-Pro/cs-learn-track.git

@@ -69,7 +69,10 @@ const SignInPage = () => {
             </div>
             <div>
               <div className="h-2"></div>
-              <a href="#" className="text-[#925FE2]">
+              <a
+                href="#"
+                className="text-[#925FE2] opacity-80 hover:opacity-100"
+              >
                 Forget Password?
               </a>
             </div>
@@ -84,6 +87,8 @@ const SignInPage = () => {
               </button>
             </div>
           </form>
+          <br />
+          <br />
           <br />
           <br />
           <br />

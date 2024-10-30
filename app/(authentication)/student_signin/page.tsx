@@ -87,28 +87,11 @@ const SignInPage = () => {
               </button>
             </div>
           </form>
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <div className=" grid grid-cols-2 place-items-center w-[23rem] pl-8  max-h-full">
-            <span className="font-poppins place-content-center align-middle text-[16px] col-span-1 opacity-50">
-              Don't have an account?{" "}
-            </span>
-            <button
-              type="submit"
-              className="col-span-1 signinBtn text-white bg-[#333437] py-2 px-4 w-[6rem] rounded-lg font-poppins text-[16px]"
-            >
-              Sign up
-            </button>
-          </div>
         </div>
       </div>
       <div className="relative h-screen align-bottom col-span-4 bg-[#925FE2] RHS">
         <svg
-          className="absolute top-0 z-0 left-0 w-1/2 h-auto opacity-50"
+          className="absolute top-0 z-0 left-0 w-1/2 h-auto opacity-70"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 200 200"
         >
@@ -120,7 +103,7 @@ const SignInPage = () => {
         </svg>
 
         <svg
-          className="absolute bottom-0 right-0 w-1/3 h-auto opacity-50"
+          className="absolute bottom-0 right-0 w-1/3 h-auto opacity-70"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 200 200"
         >
@@ -131,7 +114,7 @@ const SignInPage = () => {
           />
         </svg>
         <svg
-          className="absolute bottom-0 left-0 w-3/4 h-auto opacity-40"
+          className="absolute bottom-0 left-0 w-3/4 h-auto opacity-60"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 200 200"
         >
@@ -143,7 +126,7 @@ const SignInPage = () => {
         </svg>
 
         {/* Existing Content */}
-        <div className="title grid pt-12 pl-[8rem]">
+        <div className="title grid pt-12 pl-[5rem]">
           <h1 className="text-white leading-none z-10 text-[60px] sm:text-[50px] md:text-[60px] lg:text-[80px] font-poppins font-bold m-0 h-fit">
             <span className="font-bold">Welcome to</span> <br />
             <span className="font-[100]">student portal</span>
@@ -152,14 +135,16 @@ const SignInPage = () => {
             Login to access your account
           </p>
         </div>
-        <Image
-          src={`/login/loginPic.png`}
-          alt={`alt`}
-          layout="responsive"
-          width={800}
-          height={800}
-          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-auto max-w-[700px] max-h-[700px]"
-        />
+        <div className="img-center w-full flex justify-center">
+          <Image
+            src={`/login/loginPic.png`}
+            alt={`alt`}
+            // layout="responsive"
+            width={800}
+            height={800}
+            className="absolute bottom-0 mx-0 w-full sm:w-1/2 md:w-1/3 lg:w-3/5 h-auto"
+          />
+        </div>
       </div>
     </div>
   );

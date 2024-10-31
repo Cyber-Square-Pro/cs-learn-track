@@ -6,8 +6,9 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
   	fontFamily: {
-  		poppins: ["Poppins", "sans-serif"]
-  	},
+		  poppins: ["Poppins", "sans-serif"],
+		  "Bungee-Shade": ["Bungee Shade", "sans-serif"]
+	},
   	extend: {
   		borderRadius: {
   			lg: 'var(--radius)',

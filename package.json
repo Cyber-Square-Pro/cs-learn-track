@@ -29,6 +29,6 @@
     "tailwindcss": "3.4.14",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.6.3",
-    "zod": "^3.23.8"
+    "zod": "^3.24.0-canary.20241016T212913"
   }
 }

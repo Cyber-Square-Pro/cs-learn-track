@@ -63,8 +63,8 @@ const addstudentPage = () => {
     console.log(values);
   }
   return (
-    <div className="bg-[#0C0C0C] container h-screen w-full text-[#FFFAFA] flex items-center justify-center">
-      <div className="container rounded-lg w-full max-w-md h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto">
+    <div className="bg-[#0C0C0C] container-lg h-screen w-full text-[#FFFAFA] grid items-center justify-center grid-rows-5">
+      <div className=" rounded-lg container w-full max-w-xl h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto row-span-4">
         <h1 className="text-4xl font-bold text-left">Add a Student</h1>
         <br />
         <Form {...form}>
@@ -149,7 +149,7 @@ const addstudentPage = () => {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 fit gap-4 ">
+            <div className="grid grid-cols-2 pt-2 fit gap-4 ">
               <div className="col-span-1">
                 <FormField
                   control={form.control}
@@ -164,7 +164,7 @@ const addstudentPage = () => {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "w-[200px] justify-between text-white bg-transparent hover:bg-transparent hover:text-gray-500",
+                                "w-full justify-between text-white bg-transparent hover:bg-transparent hover:text-gray-500",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -287,11 +287,25 @@ const addstudentPage = () => {
                 type="submit"
                 className="bg-[#0c0c0c] hover:bg-[#0c0c0c6c] font-[18px]"
               >
-                Submit
+                Next
               </Button>
             </div>
           </form>
         </Form>
+      </div>
+      <div className="stepper row-span-1 grid relative align-top">
+        <div className="w-full px-6 py-4">
+          <div className="relative flex items-center justify-between w-full">
+            <div className="absolute left-0 top-2/4 h-0.5 w-full -translate-y-2/4 bg-gray-300"></div>
+            <div className="absolute left-0 top-2/4 h-0.5 w-[50%] -translate-y-2/4 bg-gray-300 transition-all duration-500"></div>
+            <div className="relative z-10 grid w-10 h-10 font-bold text-white transition-all duration-300 bg-[#222225] rounded-full place-items-center">
+              1
+            </div>
+            <div className="relative z-10 grid w-10 h-10 font-bold text-gray-900 transition-all duration-300 bg-gray-300 rounded-full place-items-center">
+              2
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

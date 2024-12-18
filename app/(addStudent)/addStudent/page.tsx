@@ -4,15 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
+import Link from "next/link";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import {
   Command,
   CommandEmpty,
@@ -47,7 +46,7 @@ const formSchema = z.object({
   email: z
     .string({ required_error: "" })
     .email({ message: "Invalid Email id" }),
-  phone: z.string({ required_error: "" }).regex(/^05\d{7}$/, {
+  phone: z.string({ required_error: "" }).regex(/^05\d{8}$/, {
     message: "Invalid UAE phone number.",
   }),
   gender: z.string({
@@ -63,13 +62,13 @@ const addstudentPage = () => {
     console.log(values);
   }
   return (
-    <div className="bg-[#0C0C0C] container-lg h-screen w-full text-[#FFFAFA] grid items-center justify-center grid-rows-5">
-      <div className=" rounded-lg container w-full max-w-xl h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto row-span-4">
+    <div className="bg-[#0C0C0C] container min-h-screen w-full text-[#FFFAFA] grid items-center justify-center grid-rows">
+      <div className=" rounded-lg container w-full max-w-xl h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto row-span-4 relative md:top-6">
         <h1 className="text-4xl font-bold text-left">Add a Student</h1>
         <br />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <div className="grid grid-cols-2 fit gap-4 ">
+            <div className="grid grid-cols-1 sm:grid-cols-2 fit gap-4 ">
               <div className="col-span-1">
                 <FormField
                   control={form.control}
@@ -215,31 +214,6 @@ const addstudentPage = () => {
                   )}
                 />
               </div>
-              {/* <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Upload Image</FormLabel>
-                      <FormControl>
-                        <div className="relative w-full border-2 border-solid border-white rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-600">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            {...field}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
-                          <span className="text-gray-500">
-                            Click to upload an image
-                          </span>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div> */}
             </div>
             <div className="grid grid-cols-2 fit gap-4 ">
               <div className="col-span-1">
@@ -287,21 +261,22 @@ const addstudentPage = () => {
                 type="submit"
                 className="bg-[#0c0c0c] hover:bg-[#0c0c0c6c] font-[18px]"
               >
-                Next
+                <Link href={"/uploadImg"}>Next</Link>
               </Button>
             </div>
           </form>
         </Form>
       </div>
-      <div className="stepper row-span-1 grid relative align-top">
+
+      <div className="stepper row-span-1 grid px-16">
         <div className="w-full px-6 py-4">
           <div className="relative flex items-center justify-between w-full">
-            <div className="absolute left-0 top-2/4 h-0.5 w-full -translate-y-2/4 bg-gray-300"></div>
-            <div className="absolute left-0 top-2/4 h-0.5 w-[50%] -translate-y-2/4 bg-gray-300 transition-all duration-500"></div>
-            <div className="relative z-10 grid w-10 h-10 font-bold text-white transition-all duration-300 bg-[#222225] rounded-full place-items-center">
+            <div className="absolute left-0 top-2/4 h-0.5 w-full -translate-y-2/4 bg-[#222225]"></div>
+            <div className="absolute left-0 top-2/4 h-0.5 w-[0%] -translate-y-2/4 bg-gray-300 transition-all duration-500"></div>
+            <div className="relative z-10 grid w-10 h-10 font-bold text-[#222225] transition-all duration-300 bg-gray-300 rounded-full place-items-center">
               1
             </div>
-            <div className="relative z-10 grid w-10 h-10 font-bold text-gray-900 transition-all duration-300 bg-gray-300 rounded-full place-items-center">
+            <div className="relative z-10 grid w-10 h-10 font-bold text-white transition-all duration-300 bg-[#222225] rounded-full place-items-center">
               2
             </div>
           </div>

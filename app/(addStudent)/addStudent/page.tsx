@@ -58,11 +58,11 @@ const AddStudentPage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
-  const navigate = useNavigate(); // Updated line
+  const navigate = useNavigate(); 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    localStorage.setItem("studentData", JSON.stringify(values)); // Added line
-    navigate("/uploadImg"); // Updated line
+    localStorage.setItem("studentData", JSON.stringify(values)); 
+    navigate("/uploadImg"); 
   }
   return (
     <div className="bg-[#0C0C0C] container-lg min-h-screen text-[#FFFAFA] flex tems-center justify-center">

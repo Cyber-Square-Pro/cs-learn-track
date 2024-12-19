@@ -20,7 +20,6 @@ export default function RootLayout({
             <Route path="/uploadImg" element={<UploadImagePage />} />
             <Route path="/addStudent" element={<AddStudentPage />} />
           </Routes>
-          {children}
         </Router>
       </body>
     </html>

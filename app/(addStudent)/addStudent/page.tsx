@@ -30,8 +30,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { error } from "console";
-import { errorToJSON } from "next/dist/server/render";
 
 const gender = [
   { label: "Male", value: "male" },
@@ -62,9 +60,9 @@ const addstudentPage = () => {
     console.log(values);
   }
   return (
-    <div className="bg-[#0C0C0C] container min-h-screen w-full text-[#FFFAFA] grid items-center justify-center grid-rows">
-      <div className=" rounded-lg container w-full max-w-xl h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto row-span-4 relative md:top-6">
-        <h1 className="text-4xl font-bold text-left">Add a Student</h1>
+    <div className="bg-[#0C0C0C] container  min-h-screen text-[#FFFAFA] flex items-center justify-center flex-col gap-10 ">
+      <div className=" rounded-lg container  w-[100%] max-w-xl h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto row-span-4 relative md:top-6">
+        <h1 className="text-3xl font-bold text-center">Add a Student</h1>
         <br />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
@@ -259,7 +257,7 @@ const addstudentPage = () => {
             <div className="container grid place-content-end">
               <Button
                 type="submit"
-                className="bg-[#0c0c0c] hover:bg-[#0c0c0c6c] font-[18px]"
+                className="bg-[#0c0c0c] hover:bg-[#fff] hover:text-[#0c0c0c] font-[18px]"
               >
                 <Link href={"/uploadImg"}>Next</Link>
               </Button>
@@ -268,17 +266,15 @@ const addstudentPage = () => {
         </Form>
       </div>
 
-      <div className="stepper row-span-1 grid px-16">
-        <div className="w-full px-6 py-4">
-          <div className="relative flex items-center justify-between w-full">
-            <div className="absolute left-0 top-2/4 h-0.5 w-full -translate-y-2/4 bg-[#222225]"></div>
-            <div className="absolute left-0 top-2/4 h-0.5 w-[0%] -translate-y-2/4 bg-gray-300 transition-all duration-500"></div>
-            <div className="relative z-10 grid w-10 h-10 font-bold text-[#222225] transition-all duration-300 bg-gray-300 rounded-full place-items-center">
-              1
-            </div>
-            <div className="relative z-10 grid w-10 h-10 font-bold text-white transition-all duration-300 bg-[#222225] rounded-full place-items-center">
-              2
-            </div>
+      <div className="stepper row-span-1 flex  h-auto w-full justify-center">
+        <div className="progress relative  w-[18%] h-full flex justify-around">
+          <div className=" relative z-10 grid w-10 h-10 font-bold text-white  bg-[#222225] rounded-full place-items-center -translate-x-[100%]">
+            1
+          </div>
+          <div className="absolute w-full h-1 grid top-[40%]  bg-gray-300"></div>
+          <div className="absolute w-[0%] h-1 grid top-[40%]  bg-[#222225]"></div>
+          <div className="relative z-10 grid w-10 h-10 font-bold text-gray-900  bg-gray-300 rounded-full place-items-center translate-x-[100%]">
+            2
           </div>
         </div>
       </div>

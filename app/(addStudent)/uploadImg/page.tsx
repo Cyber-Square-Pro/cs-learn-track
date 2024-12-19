@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,14 +21,36 @@ const formSchema = z.object({
   }),
 });
 
-const UploadImagePage = () => {
+const UploadImagePage: React.FC = () => {
+  const [studentData, setStudentData] = useState(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
+  useEffect(() => {
+    const data = localStorage.getItem("studentData");
+    if (data) {
+      setStudentData(JSON.parse(data));
+    }
+  }, []);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    if (studentData) {
+      const formData = new Map();
+      formData.set("firstName", studentData.firstName);
+      formData.set("secondName", studentData.secondName);
+      formData.set("grade", studentData.grade);
+      formData.set("section", studentData.section);
+      formData.set("email", studentData.email);
+      formData.set("phone", studentData.phone);
+      formData.set("gender", studentData.gender);
+      formData.set("image", values.image);
+      console.log(formData);
+      console.log(studentData.gender);
+      console.log(formData.get("firstName"));
+    }
   }
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {

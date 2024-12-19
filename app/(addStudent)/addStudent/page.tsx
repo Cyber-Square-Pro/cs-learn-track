@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
+import { useNavigate } from "react-router-dom";
+
 import {
   Popover,
   PopoverContent,
@@ -52,12 +54,15 @@ const formSchema = z.object({
   }),
 });
 
-const addstudentPage = () => {
+const AddStudentPage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
+  const navigate = useNavigate(); // Updated line
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    localStorage.setItem("studentData", JSON.stringify(values)); // Added line
+    navigate("/uploadImg"); // Updated line
   }
   return (
     <div className="bg-[#0C0C0C] container-lg min-h-screen text-[#FFFAFA] flex tems-center justify-center">
@@ -284,4 +289,4 @@ const addstudentPage = () => {
   );
 };
 
-export default addstudentPage;
+export default AddStudentPage;

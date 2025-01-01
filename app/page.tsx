@@ -11,7 +11,7 @@ const poppins = Poppins({
 
 const SignInPage = () => {
   return (
-    <div className="bg-richBlack flex flex-col justify-around items-center">
+    <div className="bg-richBlack flex flex-col justify-around items-center ">
       <div className="relative min-h-screen w-3/5 h-auto text-white flex flex-col items-center justify-center">
         <header className="w-full top-0 left-0 py-4 ">
           <h1 className="text-2xl font-bold text-white">Learn Track</h1>

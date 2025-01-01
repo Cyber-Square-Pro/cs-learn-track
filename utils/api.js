@@ -1,5 +1,5 @@
     
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // Set this in your environment variables
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
 
 // Dynamic function to handle different endpoints
 const fetchData = async (endpoint, method = "GET", body = null) => {
@@ -13,7 +13,7 @@ const fetchData = async (endpoint, method = "GET", body = null) => {
   };
 
   if (body) {
-    options.body = JSON.stringify(body); // If POST or PUT, include the body
+    options.body = JSON.stringify(body); 
   }
 
   try {

@@ -43,7 +43,7 @@ const CreateBatchPage = () => {
   });
   const onSubmit = async (data) => {
     try {
-      const response = await fetchData("/batches", "POST", data);
+      const response = await fetchData("/createBatch", "POST", data);
       console.log("Batch created successfully:", response);
       
     } catch (error) {
@@ -51,7 +51,7 @@ const CreateBatchPage = () => {
     }
   };
   return (
-    <div className="bg-[#0C0C0C] container h-screen w-full text-[#FFFAFA] flex items-center justify-center">
+    <div className="bg-[#0C0C0C] container-lg h-screen w-full text-[#FFFAFA] flex items-center justify-center">
       <div className="container rounded-lg w-full max-w-md h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto">
         <h1 className="text-4xl font-bold text-left">Create a Batch</h1>
         <br />

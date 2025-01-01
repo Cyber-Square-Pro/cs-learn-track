@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+import { fetchData } from "../utils/api";
+
 const formSchema = z.object({
   image: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
     message: "Image size should be less than 5MB",
@@ -50,6 +52,16 @@ const UploadImagePage: React.FC = () => {
       console.log(formData);
       console.log(studentData.gender);
       console.log(formData.get("firstName"));
+      sendToBackend(formData);
+    }
+  }
+
+  async function sendToBackend(formData: Map<string, any>) {
+    try {
+      const response = await fetchData("student/register", "POST", formData);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -59,9 +71,9 @@ const UploadImagePage: React.FC = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        form.setValue("image", file);
       };
       reader.readAsDataURL(file);
-      form.setValue("image", file);
     }
   }
 

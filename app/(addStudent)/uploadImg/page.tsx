@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { fetchData } from "../utils/api";
+import {fetchData} from "@/utils/api";
 
 const formSchema = z.object({
   image: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {

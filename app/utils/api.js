@@ -25,4 +25,3 @@ const fetchData = async (endpoint, method = "GET", body = null) => {
     throw error;
   }
 };
-export { fetchData };

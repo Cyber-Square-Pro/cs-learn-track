@@ -53,6 +53,7 @@ const UploadImagePage: React.FC = () => {
       console.log(studentData.gender);
       console.log(formData.get("firstName"));
       sendToBackend(formData);
+      
     }
   }
 

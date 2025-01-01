@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchData } from "@/utils/api";
 
 import {
   Form,
@@ -31,7 +32,7 @@ const formSchema = z.object({
   }),
 });
 
-const SignInPage = () => {
+const CreateBatchPage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,9 +41,15 @@ const SignInPage = () => {
       section: "",
     },
   });
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetchData("/batches", "POST", data);
+      console.log("Batch created successfully:", response);
+      
+    } catch (error) {
+      console.error("Error creating batch:", error);
+    }
+  };
   return (
     <div className="bg-[#0C0C0C] container h-screen w-full text-[#FFFAFA] flex items-center justify-center">
       <div className="container rounded-lg w-full max-w-md h-auto p-4 bg-[#17171a] mx-4 sm:mx-auto">
@@ -136,4 +143,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default CreateBatchPage;

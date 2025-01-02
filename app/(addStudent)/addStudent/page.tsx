@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+// import cn from "classnames";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 import { useNavigate } from "react-router-dom";
@@ -58,11 +59,11 @@ const AddStudentPage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    localStorage.setItem("studentData", JSON.stringify(values)); 
-    navigate("/uploadImg"); 
+    localStorage.setItem("studentData", JSON.stringify(values));
+    navigate("/uploadImg");
   }
   return (
     <div className="bg-[#0C0C0C] container-lg min-h-screen text-[#FFFAFA] flex tems-center justify-center">
@@ -72,7 +73,7 @@ const AddStudentPage = () => {
           <br />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 fit gap-4 ">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 fit ">
                 <div className="col-span-1">
                   <FormField
                     control={form.control}
@@ -112,7 +113,7 @@ const AddStudentPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 fit gap-4 ">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 fit ">
                 <div className="col-span-1">
                   <FormField
                     control={form.control}
@@ -152,7 +153,7 @@ const AddStudentPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 pt-2 fit gap-4 ">
+              <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2 fit ">
                 <div className="col-span-1">
                   <FormField
                     control={form.control}
@@ -219,7 +220,7 @@ const AddStudentPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 fit gap-4 ">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 fit ">
                 <div className="col-span-1">
                   <FormField
                     control={form.control}
@@ -272,7 +273,7 @@ const AddStudentPage = () => {
           </Form>
         </div>
 
-        <div className="stepper row-span-1 flex  h-auto w-full justify-center">
+        <div className="flex justify-center w-full h-auto row-span-1 stepper">
           <div className="progress relative  w-[18%] h-full flex justify-around">
             <div className=" relative z-10 grid w-10 h-10 font-bold text-white  bg-[#222225] rounded-full place-items-center -translate-x-[100%]">
               1

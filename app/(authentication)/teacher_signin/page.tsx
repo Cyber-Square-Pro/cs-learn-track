@@ -6,15 +6,6 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 // fonts
@@ -22,10 +13,10 @@ import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["200","400", "700"],
+  weight: ["200", "400", "700"],
 });
 
-const SignInPage = () => {
+const TeacherSignInPage = () => {
   const UserSchema = z.object({
     email: z.string().email().min(5),
     password: z.string().min(6).max(100),
@@ -42,7 +33,7 @@ const SignInPage = () => {
   return (
     <div className={poppins.className}>
       <div className="grid h-screen grid-flow-row grid-cols-7 grid-rows-1 mx-auto contianer">
-        <div className="container bg-[#0a0a0a] LHS col-span-3 text-white font-poppins grid justify-center content-center">
+        <div className="container bg-[#0a0a0a] LHS col-span-3 text-[#fff] font-poppins grid justify-center content-center">
           <div className="loginbox w-[400px]  grid place-content-center h-fit">
             <div className="text-left">
               <h1 className="text-[48px]  text-white lg:text-[60px]  font-bold m-0 h-fit">
@@ -140,7 +131,7 @@ const SignInPage = () => {
           <div className="title grid pt-12 pl-[5rem]">
             <h1 className="text-white leading-none z-10 text-[60px] sm:text-[50px] md:text-[60px] lg:text-[80px] font-poppins font-bold m-0 h-fit">
               <span className="font-bold">Welcome to</span> <br />
-              <span className="font-[100]">student portal</span>
+              <span className="font-[100]">admin portal</span>
             </h1>
             <p className="m-0 pb-1 font-poppins opacity-70 text-[16px] text-white">
               Login to access your account
@@ -162,4 +153,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default TeacherSignInPage;

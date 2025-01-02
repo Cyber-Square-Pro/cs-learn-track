@@ -6,6 +6,7 @@ import AddStudentPage from "./(addStudent)/addStudent/page";
 import UploadImagePage from "./(addStudent)/uploadImg/page";
 import LandingPage from "./page";
 import CreateBatchPage from "./(batch)/newBatch/page";
+import SignInPage from "./(authentication)/student_signin/page";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
             <Route path="/addStudent" element={<AddStudentPage />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/newBatch" element={<CreateBatchPage/>} />
+            <Route path="/student_signin" element={<SignInPage/>} />
           </Routes>
         </Router>
       </body>

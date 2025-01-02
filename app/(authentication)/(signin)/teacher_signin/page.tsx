@@ -32,8 +32,8 @@ const SignInPage = () => {
   };
   return (
     <div className={poppins.className}>
-      <div className="contianer mx-auto grid grid-cols-7 grid-rows-1 grid-flow-row  h-screen">
-        <div className="container bg-[#0a0a0a] LHS col-span-3 text-white font-poppins grid justify-center content-center">
+      <div className="grid h-screen grid-flow-row grid-cols-7 grid-rows-1 mx-auto contianer">
+        <div className="container bg-[#0a0a0a] LHS col-span-3 text-[#fff] font-poppins grid justify-center content-center">
           <div className="loginbox w-[400px]  grid place-content-center h-fit">
             <div className="text-left">
               <h1 className="text-[48px]  text-white lg:text-[60px]  font-bold m-0 h-fit">
@@ -53,7 +53,7 @@ const SignInPage = () => {
                   className="w-[23rem] text-[16px]"
                   {...register("email", { required: true })}
                 />
-                <p className="emailError text-red-500">
+                <p className="text-red-500 emailError">
                   {errors.email?.message}
                 </p>
               </div>
@@ -65,7 +65,7 @@ const SignInPage = () => {
                   className="w-[23rem] text-[16px]"
                   {...register("password", { required: true })}
                 />
-                <p className="passwordError text-red-500">
+                <p className="text-red-500 passwordError">
                   {errors.password?.message}
                 </p>
               </div>
@@ -93,7 +93,7 @@ const SignInPage = () => {
         </div>
         <div className="relative h-screen align-bottom col-span-4 bg-[#925FE2] RHS">
           <svg
-            className="absolute top-0 z-0 left-0 w-1/2 h-auto opacity-70"
+            className="absolute top-0 left-0 z-0 w-1/2 h-auto opacity-70"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 200 200"
           >
@@ -137,14 +137,14 @@ const SignInPage = () => {
               Login to access your account
             </p>
           </div>
-          <div className="img-center w-full flex justify-center">
+          <div className="flex justify-center w-full img-center">
             <Image
               src={`/login/loginPic.png`}
               alt={`alt`}
               // layout="responsive"
               width={800}
               height={800}
-              className="absolute bottom-0 mx-0 w-full sm:w-1/2 md:w-1/3 lg:w-3/5 h-auto"
+              className="absolute bottom-0 w-full h-auto mx-0 sm:w-1/2 md:w-1/3 lg:w-3/5"
             />
           </div>
         </div>

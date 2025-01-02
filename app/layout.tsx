@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import AddStudentPage from "./(addStudent)/addStudent/page";
 import UploadImagePage from "./(addStudent)/uploadImg/page";
+import LandingPage from "./page";
+import CreateBatchPage from "./(batch)/newBatch/page";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +21,8 @@ export default function RootLayout({
           <Routes>
             <Route path="/uploadImg" element={<UploadImagePage />} />
             <Route path="/addStudent" element={<AddStudentPage />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/newBatch" element={<CreateBatchPage/>} />
           </Routes>
         </Router>
       </body>

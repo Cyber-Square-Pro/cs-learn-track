@@ -72,7 +72,7 @@ const CreateBatchPage = () => {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 fit gap-4 ">
+            <div className="grid grid-cols-2 gap-4 fit ">
               <div className="col-span-1">
                 <FormField
                   control={form.control}
@@ -120,7 +120,7 @@ const CreateBatchPage = () => {
                     <Textarea
                       placeholder="Description of the Batch"
                       {...field}
-                      className="w-full min-h-12 flex-grow"
+                      className="flex-grow w-full min-h-12"
                     />
                   </FormControl>
                 </FormItem>

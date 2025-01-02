@@ -9,7 +9,7 @@ const poppins = Poppins({
   weight: ["400", "700"],
 });
 
-const SignInPage = () => {
+const LandingPage = () => {
   return (
     <div className="flex flex-col items-center justify-around bg-black ">
       <div className="relative flex flex-col items-center justify-center w-3/5 h-auto min-h-screen text-white">
@@ -54,4 +54,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default LandingPage;

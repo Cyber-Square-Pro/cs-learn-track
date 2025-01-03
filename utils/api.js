@@ -1,23 +1,18 @@
-    
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; 
 
-
-// Dynamic function to handle different endpoints
-const fetchData = async (endpoint, method = "GET", body = null) => {
+const fetchData = async (endpoint, method = "GET", body = null, isFormData = false) => {
   const url = `${API_BASE_URL}${endpoint}`;
 
   const options = {
     method: method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: {},
   };
 
-  if (body) {
-
-    options.body = JSON.stringify(body); // If POST or PUT, include the body
-
+  if (isFormData && body instanceof FormData) {
+    options.body = body; // If formData, directly assign it to body
+  } else if (body) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(body); // If JSON, stringify the body
   }
 
   try {
@@ -30,5 +25,4 @@ const fetchData = async (endpoint, method = "GET", body = null) => {
   }
 };
 
-export {fetchData};
-
+export { fetchData };

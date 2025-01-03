@@ -21,15 +21,10 @@ const formSchema = z.object({
   batchName: z.string().min(2, {
     message: "Batch Name must be at least 2 characters.",
   }),
-  batchDescription: z.string().min(2, {
+  description: z.string().min(2, {
     message: "Batch Description must be at least 2 characters.",
   }),
-  grade: z.string().min(1, {
-    message: "Grade must be at least 1 characters.",
-  }),
-  section: z.string().min(1, {
-    message: "Section must be at least 1 characters.",
-  }),
+
 });
 
 const CreateBatchPage = () => {
@@ -37,13 +32,12 @@ const CreateBatchPage = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       batchName: "",
-      batchDescription: "",
-      section: "",
+      description: "",
     },
   });
   const onSubmit = async (data) => {
     try {
-      const response = await fetchData("/createBatch", "POST", data);
+      const response = await fetchData("/batch/create", "POST", data);
       console.log("Batch created successfully:", response);
     } catch (error) {
       console.error("Error creating batch:", error);
@@ -72,53 +66,17 @@ const CreateBatchPage = () => {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4 fit ">
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name="grade"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Grade</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Grade"
-                          {...field}
-                          className="w-full"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="col-span-1">
-                <FormField
-                  control={form.control}
-                  name="section"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Section</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Name of the Batch"
-                          {...field}
-                          className="w-full"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
+            
             <FormField
               control={form.control}
-              name="batchDescription"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Description of the Batch"
+                      rows = {6}
                       {...field}
                       className="flex-grow w-full min-h-12"
                     />

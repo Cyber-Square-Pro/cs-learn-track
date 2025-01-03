@@ -6,6 +6,8 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import { fetchData } from "@/utils/api";
+
 import {
   Form,
   FormControl,
@@ -22,7 +24,7 @@ import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["200","400", "700"],
+  weight: ["200", "400", "700"],
 });
 
 const SignInPage = () => {
@@ -36,9 +38,25 @@ const SignInPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
-  const onSubmit: SubmitHandler<formFields> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<formFields> = async (data) => {
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+      formData.append(key, data[key]);
+    });
+
+    try {
+      const response = await fetchData(
+        "/student/login",
+        "POST",
+        formData,
+        true
+      );
+      console.log("Response from backend:", response);
+    } catch (error) {
+      console.error("Error sending formData to backend:", error);
+    }
   };
+
   return (
     <div className={poppins.className}>
       <div className="grid h-screen grid-flow-row grid-cols-7 grid-rows-1 mx-auto contianer">

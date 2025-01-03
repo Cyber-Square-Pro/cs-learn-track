@@ -3,6 +3,8 @@
 import React from "react";
 import { Poppins } from "next/font/google";
 import Image from "next/image";
+import { useNavigate } from "react-router-dom";
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -10,6 +12,7 @@ const poppins = Poppins({
 });
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-around bg-black ">
       <div className="relative flex flex-col items-center justify-center w-3/5 h-auto min-h-screen text-white">
@@ -27,15 +30,15 @@ const LandingPage = () => {
             <div className="flex space-x-4">
               <button
                 className="px-4 py-2 text-white transition rounded-md bg-primary hover:bg-white hover:text-primary"
-                onClick={() => (window.location.href = "/student-login")}
+                onClick={() => navigate("/student_signin")}
               >
                 Student Login
               </button>
               <button
                 className="px-4 py-2 text-white transition rounded-md bg-primary hover:bg-white hover:text-primary"
-                onClick={() => (window.location.href = "/admin-login")}
+                onClick={() => navigate("/teacher_signin")}
               >
-                Admin Login
+                Teacher Login
               </button>
             </div>
           </div>

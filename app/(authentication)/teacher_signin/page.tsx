@@ -4,9 +4,14 @@ import React from "react";
 import Image from "next/image";
 // import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { fetchData } from "@/utils/api";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
+import Cookies from "js-cookie";
+
+import { useNavigate } from "react-router-dom";
 
 // fonts
 import { Poppins } from "next/font/google";
@@ -17,9 +22,10 @@ const poppins = Poppins({
 });
 
 const TeacherSignInPage = () => {
+  const navigate = useNavigate();
   const UserSchema = z.object({
     email: z.string().email().min(5),
-    password: z.string().min(6).max(100),
+    teacherPassword: z.string().min(6).max(100),
   });
   type formFields = z.infer<typeof UserSchema>;
   const {
@@ -27,9 +33,21 @@ const TeacherSignInPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
-  const onSubmit: SubmitHandler<formFields> = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    navigate("/addStudent");
+    try {
+      const response = await fetchData("/teacher/login/", "POST", data);
+      console.log("Batch created successfully:", response);
+      const accessToken = response.access;
+      if (accessToken) {
+        Cookies.set("accessToken", accessToken, { expires: 7 }); // Store the token in a cookie for 7 days
+        console.log("Access token stored in cookie");
+      }
+    } catch (error) {
+      console.error("Error creating batch:", error);
+    }
   };
+
   return (
     <div className={poppins.className}>
       <div className="grid h-screen grid-flow-row grid-cols-7 grid-rows-1 mx-auto contianer">
@@ -63,10 +81,10 @@ const TeacherSignInPage = () => {
                   placeholder="Password"
                   type="password"
                   className="w-[23rem] text-[16px]"
-                  {...register("password", { required: true })}
+                  {...register("teacherPassword", { required: true })}
                 />
                 <p className="text-red-500 passwordError">
-                  {errors.password?.message}
+                  {errors.teacherPassword?.message}
                 </p>
               </div>
               <div>
@@ -131,7 +149,7 @@ const TeacherSignInPage = () => {
           <div className="title grid pt-12 pl-[5rem]">
             <h1 className="text-white leading-none z-10 text-[60px] sm:text-[50px] md:text-[60px] lg:text-[80px] font-poppins font-bold m-0 h-fit">
               <span className="font-bold">Welcome to</span> <br />
-              <span className="font-[100]">admin portal</span>
+              <span className="font-[100]">teacher portal</span>
             </h1>
             <p className="m-0 pb-1 font-poppins opacity-70 text-[16px] text-white">
               Login to access your account

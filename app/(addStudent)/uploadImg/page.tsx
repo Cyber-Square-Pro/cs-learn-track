@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import {fetchData} from "@/utils/api";
+import { fetchData } from "@/utils/api";
 
 const formSchema = z.object({
   image: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
@@ -40,29 +40,27 @@ const UploadImagePage: React.FC = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     if (studentData) {
-      const formData = new Map();
-      formData.set("firstName", studentData.firstName);
-      formData.set("secondName", studentData.secondName);
-      formData.set("grade", studentData.grade);
-      formData.set("section", studentData.section);
-      formData.set("email", studentData.email);
-      formData.set("phone", studentData.phone);
-      formData.set("gender", studentData.gender);
-      formData.set("image", values.image);
+      const formData = new FormData();
+      const studentName = studentData.firstName + " " + studentData.secondName;
+      formData.append("studentName", studentName);
+      formData.append("fatherName", studentData.secondName);
+      formData.append("studentClass", studentData.grade);
+      formData.append("division", studentData.section);
+      formData.append("email", studentData.email);
+      formData.append("contactNo", studentData.phone);
+      formData.append("gender", studentData.gender);
+      formData.append("profilePic", values.image);
       console.log(formData);
       console.log(studentData.gender);
       console.log(formData.get("firstName"));
-      sendToBackend(formData);
-      
-    }
-  }
 
-  async function sendToBackend(formData: Map<string, any>) {
-    try {
-      const response = await fetchData("student/register", "POST", formData);
-      console.log(response);
-    } catch (error) {
-      console.error(error);
+      fetchData("/student/register", "POST", formData, true)
+        .then((response) => {
+          console.log("Response from backend:", response);
+        })
+        .catch((error) => {
+          console.error("Error sending formData to backend:", error);
+        });
     }
   }
 
@@ -86,14 +84,14 @@ const UploadImagePage: React.FC = () => {
           <br />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <div className="grid grid-row gap-4">
-                <div className="row-span-1 order-last grid justify-center align-middle">
+              <div className="grid gap-4 grid-row">
+                <div className="grid justify-center order-last row-span-1 align-middle">
                   <FormField
                     control={form.control}
                     name="image"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="grid justify-self-center h-4">
+                        <FormLabel className="grid h-4 justify-self-center">
                           Upload Image
                         </FormLabel>
                         <FormControl>
@@ -128,17 +126,17 @@ const UploadImagePage: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="row-span-2 flex items-center justify-self-center">
+                <div className="flex items-center row-span-2 justify-self-center">
                   {imagePreview ? (
                     <Image
                       src={imagePreview}
                       width={500}
                       height={500}
                       alt="Image Preview"
-                      className="w-32 h-32 object-cover rounded-full"
+                      className="object-cover w-32 h-32 rounded-full"
                     ></Image>
                   ) : (
-                    <div className="w-32 h-32 bg-gray-300 flex items-center justify-center rounded-full">
+                    <div className="flex items-center justify-center w-32 h-32 bg-gray-300 rounded-full">
                       <span className="text-gray-500">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -172,7 +170,7 @@ const UploadImagePage: React.FC = () => {
           </Form>
         </div>
 
-        <div className="stepper static row-span-1 flex h-auto w-full justify-center">
+        <div className="static flex justify-center w-full h-auto row-span-1 stepper">
           <div className="progress relative w-[18%] h-full flex justify-around">
             <div className=" relative z-10 grid w-10 h-10 font-bold text-white  bg-[#222225] rounded-full place-items-center -translate-x-[100%]">
               1

@@ -1,18 +1,17 @@
 "use client";
+{
+  `/* //TODO: Return the username of the teacher and the student data */`;
+}
 
 import React from "react";
 import Image from "next/image";
 // import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchData } from "@/utils/api";
-
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import Cookies from "js-cookie";
-
 import { useNavigate } from "react-router-dom";
-
 // fonts
 import { Poppins } from "next/font/google";
 
@@ -34,15 +33,16 @@ const TeacherSignInPage = () => {
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
   const onSubmit = async (data) => {
-    navigate("/addStudent");
+    // navigate("/addStudent");
     try {
       const response = await fetchData("/teacher/login/", "POST", data);
-      console.log("Batch created successfully:", response);
-      const accessToken = response.access;
-      if (accessToken) {
-        Cookies.set("accessToken", accessToken, { expires: 7 }); // Store the token in a cookie for 7 days
-        console.log("Access token stored in cookie");
-      }
+      console.log("Teacher logged in successfully:", response);
+      const userData = {
+        teacherName: response.teacherName,
+        userType: "teacher",
+        email: data.email,
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
     } catch (error) {
       console.error("Error creating batch:", error);
     }

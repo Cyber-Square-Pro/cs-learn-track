@@ -52,6 +52,12 @@ const SignInPage = () => {
         true
       );
       console.log("Response from backend:", response);
+      const userData = {
+        studentName: response.studentName,
+        userType: "student",
+        email: data.email,
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
     } catch (error) {
       console.error("Error sending formData to backend:", error);
     }

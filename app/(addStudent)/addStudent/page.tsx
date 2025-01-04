@@ -266,7 +266,7 @@ const AddStudentPage = () => {
                   type="submit"
                   className="bg-[#0c0c0c] hover:bg-[#fff] hover:text-[#0c0c0c] font-[18px]"
                 >
-                  <Link href={"/uploadImg"}>Next</Link>
+                  Next
                 </Button>
               </div>
             </form>

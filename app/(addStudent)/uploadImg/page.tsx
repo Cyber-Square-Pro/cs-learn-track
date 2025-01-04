@@ -57,6 +57,8 @@ const UploadImagePage: React.FC = () => {
       fetchData("/student/register", "POST", formData, true)
         .then((response) => {
           console.log("Response from backend:", response);
+          localStorage.removeItem("studentData");
+          setStudentData(null);
         })
         .catch((error) => {
           console.error("Error sending formData to backend:", error);

@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { fetchData } from "@/utils/api";
+import { getNamedRouteRegex } from "next/dist/shared/lib/router/utils/route-regex";
 
 const formSchema = z.object({
   image: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
@@ -40,21 +41,24 @@ const UploadImagePage: React.FC = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     if (studentData) {
-      const formData = new FormData();
       const studentName = studentData.firstName + " " + studentData.secondName;
-      formData.append("studentName", studentName);
-      formData.append("fatherName", studentData.secondName);
-      formData.append("studentClass", studentData.grade);
-      formData.append("division", studentData.section);
-      formData.append("email", studentData.email);
-      formData.append("contactNo", studentData.phone);
-      formData.append("gender", studentData.gender);
-      formData.append("profilePic", values.image);
-      console.log(formData);
-      console.log(studentData.gender);
-      console.log(formData.get("firstName"));
+      const data = {
+        studentName: studentName,
+        fatherName: studentData.secondName,
+        studentClass: studentData.grade,
+        division: studentData.section,
+        email: studentData.email,
+        contactNo: studentData.phone,
+        gender: studentData.gender,
+        // profilePic: values.image,
+        studentPassword: studentData.password,
+        batch: studentData.batch,
+        joinedDate: studentData.joinedDate,
+      };
+      console.log(data.email);
+      const userData = JSON.parse(localStorage.userData);
 
-      fetchData("/student/register", "POST", formData, true)
+      fetchData("/student/register/", "POST", data, false, userData.accessToken)
         .then((response) => {
           console.log("Response from backend:", response);
           localStorage.removeItem("studentData");

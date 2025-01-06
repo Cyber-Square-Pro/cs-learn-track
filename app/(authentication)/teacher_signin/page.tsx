@@ -5,7 +5,7 @@
 
 import React from "react";
 import Image from "next/image";
-// import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchData } from "@/utils/api";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 // fonts
 import { Poppins } from "next/font/google";
+import { access } from "fs";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -21,6 +22,7 @@ const poppins = Poppins({
 });
 
 const TeacherSignInPage = () => {
+  const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   const UserSchema = z.object({
     email: z.string().email().min(5),
@@ -36,15 +38,21 @@ const TeacherSignInPage = () => {
     // navigate("/addStudent");
     try {
       const response = await fetchData("/teacher/login/", "POST", data);
-      console.log("Teacher logged in successfully:", response);
-      const userData = {
-        teacherName: response.teacherName,
-        userType: "teacher",
-        email: data.email,
-      };
-      localStorage.setItem("userData", JSON.stringify(userData));
+      if (response.status === 200) {
+        const userData = {
+          // teacherName: response.teacherName,
+          userType: "teacher",
+          email: data.email,
+          accessToken: response.access,
+        };
+        setLoginError(null);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        navigate("/addStudent");
+      } else if (response.status === 400) {
+        setLoginError("Invalid email or password");
+      }
     } catch (error) {
-      console.error("Error creating batch:", error);
+      console.error("Error loggin:", error);
     }
   };
 
@@ -96,6 +104,10 @@ const TeacherSignInPage = () => {
                   Forget Password?
                 </a>
               </div>
+              {/* show the error */}
+              {loginError && (
+                <p className="text-left text-red-500">{loginError}</p>
+              )}
               <div className="grid  width-[100%]">
                 <br />
                 <br />

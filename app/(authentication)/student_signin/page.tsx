@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 // import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,9 +28,10 @@ const poppins = Poppins({
 });
 
 const SignInPage = () => {
+  const [loginError, setLoginError] = useState<string | null>(null);
   const UserSchema = z.object({
-    email: z.string().email().min(5),
-    password: z.string().min(6).max(100),
+    admissionNo: z.string({ required_error: "" }).min(4),
+    studentPassword: z.string({ required_error: "" }).min(6).max(100),
   });
   type formFields = z.infer<typeof UserSchema>;
   const {
@@ -39,33 +40,31 @@ const SignInPage = () => {
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
   const onSubmit: SubmitHandler<formFields> = async (data) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
-    });
-
     try {
-      const response = await fetchData(
-        "/student/login",
-        "POST",
-        formData,
-        true
-      );
-      console.log("Response from backend:", response);
-      const userData = {
-        studentName: response.studentName,
-        userType: "student",
-        email: data.email,
+      const postData = {
+        admissionNo: parseInt(data.admissionNo),
+        studentPassword: data.studentPassword,
       };
-      localStorage.setItem("userData", JSON.stringify(userData));
+      const response = await fetchData("/student/login/", "POST", postData);
+      if (response.status === 200) {
+        const userData = {
+          userType: "student",
+          accessToken: response.access,
+        };
+        setLoginError(null);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        // navigate("/");
+      } else if (response.status === 400) {
+        setLoginError("Invalid Admission Number or Password");
+      }
     } catch (error) {
-      console.error("Error sending formData to backend:", error);
+      console.error("Error loggin:", error);
     }
   };
 
   return (
     <div className={poppins.className}>
-      <div className="grid h-screen grid-flow-row grid-cols-7 grid-rows-1 mx-auto contianer">
+      <div className="grid grid-flow-row grid-cols-7 grid-rows-1 mx-auto h-scree n contianer">
         <div className="container bg-[#0a0a0a] LHS col-span-3 text-white font-poppins grid justify-center content-center">
           <div className="loginbox w-[400px]  grid place-content-center h-fit">
             <div className="text-left">
@@ -81,13 +80,13 @@ const SignInPage = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="grid place-content-center emailDiv w-[23rem] text-white">
                 <Input
-                  placeholder="Email"
-                  type="email"
+                  placeholder="Admission Number"
+                  type="text"
                   className="w-[23rem] text-[16px]"
-                  {...register("email", { required: true })}
+                  {...register("admissionNo", { required: true })}
                 />
                 <p className="text-red-500 emailError">
-                  {errors.email?.message}
+                  {errors.admissionNo?.message}
                 </p>
               </div>
               <div className="h-3"></div>
@@ -96,10 +95,10 @@ const SignInPage = () => {
                   placeholder="Password"
                   type="password"
                   className="w-[23rem] text-[16px]"
-                  {...register("password", { required: true })}
+                  {...register("studentPassword", { required: true })}
                 />
                 <p className="text-red-500 passwordError">
-                  {errors.password?.message}
+                  {errors.studentPassword?.message}
                 </p>
               </div>
               <div>
@@ -111,6 +110,9 @@ const SignInPage = () => {
                   Forget Password?
                 </a>
               </div>
+              {loginError && (
+                <p className="text-left text-red-500">{loginError}</p>
+              )}
               <div className="grid  width-[100%]">
                 <br />
                 <br />

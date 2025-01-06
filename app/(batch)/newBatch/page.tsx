@@ -24,7 +24,6 @@ const formSchema = z.object({
   description: z.string().min(2, {
     message: "Batch Description must be at least 2 characters.",
   }),
-
 });
 
 const CreateBatchPage = () => {
@@ -36,8 +35,15 @@ const CreateBatchPage = () => {
     },
   });
   const onSubmit = async (data) => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
     try {
-      const response = await fetchData("/batch/create", "POST", data);
+      const response = await fetchData(
+        "/batch/create/",
+        "POST",
+        data,
+        false,
+        userData.accessToken
+      );
       console.log("Batch created successfully:", response);
     } catch (error) {
       console.error("Error creating batch:", error);
@@ -66,7 +72,7 @@ const CreateBatchPage = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="description"
@@ -76,7 +82,7 @@ const CreateBatchPage = () => {
                   <FormControl>
                     <Textarea
                       placeholder="Description of the Batch"
-                      rows = {6}
+                      rows={6}
                       {...field}
                       className="flex-grow w-full min-h-12"
                     />

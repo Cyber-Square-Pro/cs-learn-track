@@ -2,12 +2,12 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import AddStudentPage from "./(addStudent)/addStudent/page";
-import UploadImagePage from "./(addStudent)/uploadImg/page";
+import AddStudentPage from "./(teacher)/student/add/page";
+import UploadImagePage from "./(teacher)/student/image/upload/page";
 import LandingPage from "./page";
-import CreateBatchPage from "./(batch)/newBatch/page";
-import SignInPage from "./(authentication)/student_signin/page";
-import TeacherSignInPage from "./(authentication)/teacher_signin/page";
+import CreateBatchPage from "./(teacher)/batches/add/page";
+import SignInPage from "./(authentication)/student/sign-in/page";
+import TeacherSignInPage from "./(authentication)/teacher/sign-in/page";
 
 const inter = Inter({ subsets: ["latin"] });
 

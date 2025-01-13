@@ -14,6 +14,7 @@ const poppins = Poppins({
 const LandingPage = () => {
   const navigate = useNavigate();
   return (
+
     <div className="flex flex-col items-center justify-around bg-black ">
       <div className="relative flex flex-col items-center justify-center w-3/5 h-auto min-h-screen text-white">
         <header className="top-0 left-0 w-full py-4 ">
@@ -30,13 +31,13 @@ const LandingPage = () => {
             <div className="flex space-x-4">
               <button
                 className="px-4 py-2 text-white transition rounded-md bg-primary hover:bg-white hover:text-primary"
-                onClick={() => navigate("/student_signin")}
+                onClick={() => navigate("/student/sign-in")}
               >
                 Student Login
               </button>
               <button
                 className="px-4 py-2 text-white transition rounded-md bg-primary hover:bg-white hover:text-primary"
-                onClick={() => navigate("/teacher_signin")}
+                onClick={() => navigate("/teacher/sign-in")}
               >
                 Teacher Login
               </button>

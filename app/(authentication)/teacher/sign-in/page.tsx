@@ -47,7 +47,7 @@ const TeacherSignInPage = () => {
         };
         setLoginError(null);
         localStorage.setItem("userData", JSON.stringify(userData));
-        navigate("/addStudent");
+        navigate("/teacher/dashboard");
       } else if (response.status === 400) {
         setLoginError("Invalid email or password");
       }

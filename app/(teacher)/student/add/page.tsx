@@ -14,7 +14,8 @@ import { fetchData } from "@/utils/api";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-
+// import { withAuth } from "@/lib/withAuth";
+import withAuth from "@/lib/withAuth";
 import {
   Popover,
   PopoverContent,
@@ -85,11 +86,11 @@ const AddStudentPage = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     values.joinedDate = date;
-    localStorage.setItem("studentData", JSON.stringify(values));
-    navigate("/uploadImg");
+    sessionStorage.setItem("studentData", JSON.stringify(values));
+    navigate("/teacher/student/image/upload");
   }
   const fetchBatches = async () => {
-    const userData = JSON.parse(localStorage.userData);
+    const userData = JSON.parse(sessionStorage.userData);
     const response = await fetchData(
       "/batch/list/",
       "POST",
@@ -438,7 +439,15 @@ const AddStudentPage = () => {
                 </div>
               </div>
               <div className="h-1"></div>
-              <div className="container grid place-content-end">
+              <div className="container flex place-content-between">
+                <Button
+                  type="button"
+                  className="dark bg-transparent border-[1.5px] font-[18px] "
+                  onClick={() => navigate("/teacher/dashboard")}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
                   className="bg-white text-[#0c0c0c] hover:bg-[#0c0c0c] hover:text-white font-[18px]"
@@ -467,4 +476,4 @@ const AddStudentPage = () => {
   );
 };
 
-export default AddStudentPage;
+export default withAuth(AddStudentPage, ["Teacher"]);

@@ -52,7 +52,7 @@ const SignInPage = () => {
           accessToken: response.access,
         };
         setLoginError(null);
-        localStorage.setItem("userData", JSON.stringify(userData));
+        sessionStorage.setItem("userData", JSON.stringify(userData));
         // navigate("/");
       } else if (response.status === 400) {
         setLoginError("Invalid Admission Number or Password");

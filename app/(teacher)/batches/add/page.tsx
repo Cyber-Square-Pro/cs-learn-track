@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { fetchData } from "@/utils/api";
-
+import { useToast } from "@/hooks/use-toast";
+import withAuth from "@/lib/withAuth";
+import { useNavigate } from "react-router-dom";
 import {
   Form,
   FormControl,
@@ -17,6 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { fetchData } from "@/utils/api";
+import { time } from "console";
 const formSchema = z.object({
   batchName: z.string().min(2, {
     message: "Batch Name must be at least 2 characters.",
@@ -27,6 +30,7 @@ const formSchema = z.object({
 });
 
 const CreateBatchPage = () => {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,8 +38,10 @@ const CreateBatchPage = () => {
       description: "",
     },
   });
-  const onSubmit = async (data) => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
+  const { toast } = useToast();
+  const OnSubmit = async (data) => {
+    const userDataString = sessionStorage.getItem("userData");
+    const userData = userDataString ? JSON.parse(userDataString) : null;
     try {
       const response = await fetchData(
         "/batch/create/",
@@ -44,9 +50,31 @@ const CreateBatchPage = () => {
         false,
         userData.accessToken
       );
-      console.log("Batch created successfully:", response);
+      // console.log("Batch created successfully:", response);
+      if (response.status === 201) {
+        toast({
+          variant: "default",
+          title: "Batch Created",
+          className: "bg-green-500 text-white border border-green-700",
+          description: `${data.batchName} has been created successfully.`,
+        });
+        form.reset();
+        navigate("/teacher/dashboard");
+      } else if (response.status !== 201) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description:
+            "This Batch already exists or an error occurred while creating the batch.",
+        });
+      }
     } catch (error) {
-      console.error("Error creating batch:", error);
+      // console.error("Error creating batch:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred while creating the batch.",
+      });
     }
   };
   return (
@@ -55,7 +83,7 @@ const CreateBatchPage = () => {
         <h1 className="text-4xl font-bold text-left">Create a Batch</h1>
         <br />
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <form onSubmit={form.handleSubmit(OnSubmit)} className="space-y-3">
             <FormField
               control={form.control}
               name="batchName"
@@ -91,10 +119,18 @@ const CreateBatchPage = () => {
               )}
             />
             <div className="h-1"></div>
-            <div className="container grid place-content-end">
+            <div className="container flex w-full place-content-between ">
+              <Button
+                type="button"
+                className="dark bg-transparent border-[1.5px] font-[18px] "
+                onClick={() => navigate("/teacher/dashboard")}
+                variant="outline"
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
-                className="bg-[#0c0c0c] hover:bg-[#0c0c0c6c] font-[18px]"
+                className="bg-[#0c0c0c] hover:bg-[#0c0c0c6c] font-[18px] "
               >
                 Submit
               </Button>
@@ -106,4 +142,4 @@ const CreateBatchPage = () => {
   );
 };
 
-export default CreateBatchPage;
+export default withAuth(CreateBatchPage, ["Teacher"]);

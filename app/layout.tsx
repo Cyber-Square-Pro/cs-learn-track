@@ -9,6 +9,7 @@ import CreateBatchPage from "./(teacher)/batches/add/page";
 import SignInPage from "./(authentication)/student/sign-in/page";
 import TeacherSignInPage from "./(authentication)/teacher/sign-in/page";
 import DashboardPage from "./(teacher)/dashboard/page";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,15 +23,19 @@ export default function RootLayout({
       <body className={inter.className}>
         <Router>
           <Routes>
-            <Route path="/student/image/upload" element={<UploadImagePage />} />
-            <Route path="/student/add" element={<AddStudentPage />} />
+            <Route
+              path="/teacher/student/image/upload"
+              element={<UploadImagePage />}
+            />
+            <Route path="/teacher/student/add" element={<AddStudentPage />} />
             <Route path="/" element={<LandingPage />} />
-            <Route path="/batches/add" element={<CreateBatchPage />} />
+            <Route path="/teacher/batches/add" element={<CreateBatchPage />} />
             <Route path="/student/sign-in" element={<SignInPage />} />
             <Route path="/teacher/sign-in" element={<TeacherSignInPage />} />
             <Route path="/teacher/dashboard" element={<DashboardPage />} />
           </Routes>
         </Router>
+        <Toaster />
       </body>
     </html>
   );

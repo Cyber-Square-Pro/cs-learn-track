@@ -1,17 +1,17 @@
 "use client";
-{
-  `/* //TODO: Return the username of the teacher and the student data */`;
-}
-
 import React from "react";
 import Image from "next/image";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+// import withAuth from "@/lib/withAuth";
+import withAuth from "@/lib/withAuth";
 import { fetchData } from "@/utils/api";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+
 // fonts
 import { Poppins } from "next/font/google";
 import { access } from "fs";
@@ -41,12 +41,14 @@ const TeacherSignInPage = () => {
       if (response.status === 200) {
         const userData = {
           // teacherName: response.teacherName,
-          userType: "teacher",
+          userType: "Teacher",
           email: data.email,
           accessToken: response.access,
+          name: response.name,
+          refresh: response.refresh,
         };
         setLoginError(null);
-        localStorage.setItem("userData", JSON.stringify(userData));
+        sessionStorage.setItem("userData", JSON.stringify(userData));
         navigate("/teacher/dashboard");
       } else if (response.status === 400) {
         setLoginError("Invalid email or password");

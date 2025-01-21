@@ -1,10 +1,13 @@
 "use client";
 
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { Search } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
+import withAuth from "@/lib/withAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { fetchData } from "@/utils/api";
+import { useState, useEffect } from "react";
 import {
   TableHeader,
   TableRow,
@@ -14,7 +17,7 @@ import {
   Table,
 } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
-import PerfectScrollbar from "react-perfect-scrollbar";
+import { SidebarPage } from "../(bars)/sidebar";
 
 const ChartContainer = ({ className, children }) => (
   <div className={className}>
@@ -34,51 +37,78 @@ const attendanceData = [
   { day: "Sun", value: 83 },
 ];
 
-export default function Dashboard() {
-  const navigate = useNavigate();
+interface DashboardData {
+  total_students: number;
+  active_teachers: number;
+  recent_students_details: any[];
+  // Add other properties as needed
+}
 
+const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const navigate = useNavigate();
+  const userDataString = sessionStorage.getItem("userData");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+  const LogOutBtn = () => {
+    const userDataString = sessionStorage.getItem("userData");
+    const userData = userDataString ? JSON.parse(userDataString) : null;
+    fetchData(
+      "/logout/",
+      "POST",
+      { refresh: userData.refresh },
+      false,
+      userData.accessToken
+    );
+    sessionStorage.removeItem("userData");
+    navigate("/");
+  };
+  const fetchDashboardData = async () => {
+    try {
+      const dashboardRes = await fetchData(
+        "/teacher/dashboard/",
+        "POST",
+        null,
+        false,
+        userData.accessToken
+      );
+      setDashboardData(dashboardRes);
+      sessionStorage.setItem("dashboardData", JSON.stringify(dashboardRes));
+      sessionStorage.setItem("dashboardDataTimestamp", Date.now().toString());
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+  console.log(dashboardData);
+  useEffect(() => {
+    // console.log("Active");
+    const statusBox = document.querySelectorAll(".status-div");
+    statusBox.forEach((box) => {
+      console.log(box.textContent);
+      if (box.textContent === "Active") {
+        box.classList.remove("text-red-700");
+        box.classList.remove("bg-red-100");
+        box.classList.add("text-green-700");
+        box.classList.add("bg-green-100");
+        (box as HTMLElement).style.padding = "0.25rem 0.76rem";
+      } else if (box.textContent === "Inactive") {
+        (box as HTMLElement).style.padding = "0.25rem 0.5rem";
+        box.classList.remove("text-green-700");
+        box.classList.remove("bg-green-100");
+        box.classList.add("text-red-700");
+        box.classList.add("bg-red-100");
+      }
+    });
+  }, [dashboardData]);
   return (
-    <div className="min-h-screen pb-10 bg-[#181818] dark ">
+    <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 p-6 space-y-4 border-r bg-[#0a0a0a] text-white">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-blue-500 rounded" />
-            <span className="text-lg font-semibold">LearnTrack</span>
-          </div>
-          <nav className="space-y-2">
-            <Button
-              variant="secondary"
-              className="justify-start w-full font-normal"
-            >
-              Dashboard
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start w-full font-normal"
-            >
-              Students
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start w-full font-normal"
-            >
-              Batches
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start w-full font-normal"
-            >
-              Schedule
-            </Button>
-            <Button
-              variant="ghost"
-              className="justify-start w-full font-normal"
-            >
-              Reports
-            </Button>
-          </nav>
-        </div>
+        <SidebarPage></SidebarPage>
 
         {/* Main Content */}
         <div className="flex-1 p-8">
@@ -92,12 +122,18 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-500 rounded-full" />
                 <div>
-                  <div className="font-medium text-white">John Smith</div>
-                  <div className="text-sm text-gray-500">Teacher</div>
+                  <div className="font-medium text-white">
+                    {userData ? userData.name : "Guest"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {userData ? userData.userType : ""}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center ">
-                <Button className="w-full ">Logout</Button>
+                <Button className="w-full " onClick={LogOutBtn}>
+                  Logout
+                </Button>
               </div>
             </div>
           </div>
@@ -111,17 +147,21 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
+                <div className="text-2xl font-bold">
+                  {dashboardData ? dashboardData.total_students : "Loading..."}
+                </div>
               </CardContent>
             </Card>
             <Card className="hover:bg-[#0d1218]">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-sm font-medium">
-                  Active Teachers
+                  Active Students
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">18</div>
+                <div className="text-2xl font-bold">
+                  {dashboardData ? dashboardData.active_teachers : "Loading..."}
+                </div>
               </CardContent>
             </Card>
             <Card className="hover:bg-[#0d1218]">
@@ -192,13 +232,29 @@ export default function Dashboard() {
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell>Sarah Johnson</TableCell>
-                        <TableCell>STU001</TableCell>
-                        <TableCell>Batch A</TableCell>
-                        <TableCell>sarah.j@example.com</TableCell>
                         <TableCell>
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                            Active
+                          {
+                            dashboardData?.recent_students_details[0]
+                              .studentName
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {
+                            dashboardData?.recent_students_details[0]
+                              .admissionNo
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[0].batch}
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[0].email}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                            {dashboardData?.recent_students_details[0].active
+                              ? "Active"
+                              : "Inactive"}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -208,13 +264,61 @@ export default function Dashboard() {
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell>Michael Brown</TableCell>
-                        <TableCell>STU002</TableCell>
-                        <TableCell>Batch B</TableCell>
-                        <TableCell>michael.b@example.com</TableCell>
                         <TableCell>
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                            Active
+                          {
+                            dashboardData?.recent_students_details[1]
+                              .studentName
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {
+                            dashboardData?.recent_students_details[1]
+                              .admissionNo
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[1].batch}
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[1].email}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                            {dashboardData?.recent_students_details[1].active
+                              ? "Active"
+                              : "Inactive"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          {
+                            dashboardData?.recent_students_details[2]
+                              .studentName
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {
+                            dashboardData?.recent_students_details[2]
+                              .admissionNo
+                          }
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[2].batch}
+                        </TableCell>
+                        <TableCell>
+                          {dashboardData?.recent_students_details[2].email}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                            {dashboardData?.recent_students_details[2].active
+                              ? "Active"
+                              : "Inactive"}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -236,13 +340,13 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
-                  onClick={() => navigate("/student/add")}
+                  onClick={() => navigate("/teacher/student/add")}
                   className="w-full "
                 >
                   Register New Student
                 </Button>
                 <Button
-                  onClick={() => navigate("/batches/add")}
+                  onClick={() => navigate("/teacher/batches/add")}
                   className="w-full "
                   variant={"outline"}
                 >
@@ -261,4 +365,6 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default withAuth(Dashboard, ["Teacher"]);

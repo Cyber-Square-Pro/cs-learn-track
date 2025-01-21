@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import withAuth from "@/lib/withAuth";
+import { useNavigate } from "react-router-dom";
 import {
   Form,
   FormControl,
@@ -19,68 +21,97 @@ import { fetchData } from "@/utils/api";
 import { getNamedRouteRegex } from "next/dist/shared/lib/router/utils/route-regex";
 
 const formSchema = z.object({
-  image: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, {
-    message: "Image size should be less than 5MB",
-  }),
+  image: z
+    .any()
+    .refine((file) => file instanceof File, {
+      message: "Invalid file type",
+    })
+    .refine((file) => file && file.size <= 5 * 1024 * 1024, {
+      message: "Image size should be less than 5MB",
+    }),
 });
 
 const UploadImagePage: React.FC = () => {
-  const [studentData, setStudentData] = useState(null);
+  const navigate = useNavigate();
+  // const [studentData, setStudentData] = useState(null);
+  const [studentData, setStudentData] = useState({
+    firstName: "",
+    secondName: "",
+    grade: "",
+    section: "",
+    email: "",
+    phone: "",
+    gender: "",
+    password: "",
+    batch: "",
+    joinedDate: "",
+  });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   useEffect(() => {
-    const data = localStorage.getItem("studentData");
+    const data = sessionStorage.getItem("studentData");
     if (data) {
       setStudentData(JSON.parse(data));
     }
   }, []);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    if (studentData) {
-      const studentName = studentData.firstName + " " + studentData.secondName;
-      const data = {
-        studentName: studentName,
-        fatherName: studentData.secondName,
-        studentClass: studentData.grade,
-        division: studentData.section,
-        email: studentData.email,
-        contactNo: studentData.phone,
-        gender: studentData.gender,
-        // profilePic: values.image,
-        studentPassword: studentData.password,
-        batch: studentData.batch,
-        joinedDate: studentData.joinedDate,
-      };
-      console.log(data.email);
-      const userData = JSON.parse(localStorage.userData);
-
-      fetchData("/student/register/", "POST", data, false, userData.accessToken)
-        .then((response) => {
-          console.log("Response from backend:", response);
-          localStorage.removeItem("studentData");
-          setStudentData(null);
-        })
-        .catch((error) => {
-          console.error("Error sending formData to backend:", error);
-        });
-    }
-  }
-
-  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
+      setImage(file);
+      form.setValue("image", file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        form.setValue("image", file);
       };
       reader.readAsDataURL(file);
     }
-  }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const studentName = studentData.firstName + " " + studentData.secondName;
+    const formData = new FormData();
+
+    // Append all student data to FormData
+    formData.append("studentName", studentName);
+    formData.append("fatherName", studentData.secondName);
+    formData.append("studentClass", studentData.grade);
+    formData.append("division", studentData.section);
+    formData.append("email", studentData.email);
+    formData.append("contactNo", studentData.phone);
+    formData.append("gender", studentData.gender);
+    formData.append("studentPassword", studentData.password);
+    formData.append("batch", studentData.batch);
+    formData.append("joinedDate", studentData.joinedDate);
+
+    // Append image if it exists
+    if (image) {
+      formData.append("profile_pic", image); // File type
+    }
+
+    const userData = JSON.parse(sessionStorage.userData);
+
+    try {
+      const response = await fetchData(
+        "/student/register/",
+        "POST",
+        formData,
+        true, // isFormData set to true
+        userData.accessToken
+      );
+      console.log("Response from backend:", response);
+      sessionStorage.removeItem("studentData");
+      setStudentData(null);
+      navigate("/teacher/dashboard");
+    } catch (error) {
+      console.error("Error uploading data:", error);
+    }
+  };
 
   return (
     <div className="bg-[#0C0C0C] container-lg min-h-screen text-[#FFFAFA] flex tems-center justify-center">
@@ -164,7 +195,15 @@ const UploadImagePage: React.FC = () => {
                 </div>
               </div>
               <div className="h-1"></div>
-              <div className="container grid place-content-center">
+              <div className="container flex place-content-between">
+                <Button
+                  type="button"
+                  className="bg-[#0c0c0c] hover:bg-[#fff] hover:text-[#0c0c0c] font-[18px]"
+                  onClick={() => navigate("/teacher/student/add")}
+                >
+                  Go Back
+                </Button>
+
                 <Button
                   type="submit"
                   className="bg-[#0c0c0c] hover:bg-[#fff] hover:text-[#0c0c0c] font-[18px]"
@@ -193,4 +232,4 @@ const UploadImagePage: React.FC = () => {
   );
 };
 
-export default UploadImagePage;
+export default withAuth(UploadImagePage, ["Teacher"]);

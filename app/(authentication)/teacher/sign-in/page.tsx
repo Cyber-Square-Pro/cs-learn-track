@@ -35,26 +35,31 @@ const TeacherSignInPage = () => {
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
   const onSubmit = async (data) => {
-    // navigate("/addStudent");
     try {
       const response = await fetchData("/teacher/login/", "POST", data);
       if (response.status === 200) {
+        // Set JWT token in HTTP-only cookie
+        Cookies.set("accessToken", response.access, {
+          secure: true,
+          sameSite: "strict",
+          expires: 1, // 1 day
+        });
+
+        // Store non-sensitive user data in session
         const userData = {
-          // teacherName: response.teacherName,
           userType: "Teacher",
           email: data.email,
-          accessToken: response.access,
           name: response.name,
-          refresh: response.refresh,
         };
+
+        localStorage.setItem("userData", JSON.stringify(userData));
         setLoginError(null);
-        sessionStorage.setItem("userData", JSON.stringify(userData));
         navigate("/teacher/dashboard");
       } else if (response.status === 400) {
         setLoginError("Invalid email or password");
       }
     } catch (error) {
-      console.error("Error loggin:", error);
+      console.error("Error logging in:", error);
     }
   };
 

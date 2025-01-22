@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const fetchData = async (
@@ -8,13 +10,17 @@ const fetchData = async (
   token = null
 ) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  
+  // Get token from cookie if not provided
+  const accessToken = token || Cookies.get('accessToken');
 
   const options = {
     method: method,
     headers: {},
   };
-  if (token) {
-    options.headers["Authorization"] = `Bearer ${token}`;
+  
+  if (accessToken) {
+    options.headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   if (isFormData && body instanceof FormData) {

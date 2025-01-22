@@ -90,7 +90,7 @@ const AddStudentPage = () => {
     navigate("/teacher/student/image/upload");
   }
   const fetchBatches = async () => {
-    const userData = JSON.parse(sessionStorage.userData);
+    const userData = JSON.parse(localStorage.userData);
     const response = await fetchData(
       "/batch/list/",
       "POST",

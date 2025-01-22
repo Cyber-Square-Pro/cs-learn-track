@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
 import { SidebarPage } from "../(bars)/sidebar";
+import Cookies from "js-cookie";
 
 const ChartContainer = ({ className, children }) => (
   <div className={className}>
@@ -45,37 +46,35 @@ interface DashboardData {
 }
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const navigate = useNavigate();
-  const userDataString = sessionStorage.getItem("userData");
+  const userDataString = localStorage.getItem("userData");
   const userData = userDataString ? JSON.parse(userDataString) : null;
-  const LogOutBtn = () => {
-    const userDataString = sessionStorage.getItem("userData");
-    const userData = userDataString ? JSON.parse(userDataString) : null;
-    fetchData(
-      "/logout/",
-      "POST",
-      { refresh: userData.refresh },
-      false,
-      userData.accessToken
-    );
-    sessionStorage.removeItem("userData");
-    navigate("/");
+
+  const handleLogout = () => {
+    // Remove the access token cookie
+    Cookies.remove('accessToken');
+    
+    // Clear local storage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('dashboardData');
+    localStorage.removeItem('dashboardDataTimestamp');
+    
+    // Redirect to login page
+    navigate('/teacher/sign-in');
   };
+
   const fetchDashboardData = async () => {
     try {
       const dashboardRes = await fetchData(
         "/teacher/dashboard/",
         "POST",
         null,
-        false,
-        userData.accessToken
+        false
       );
       setDashboardData(dashboardRes);
-      sessionStorage.setItem("dashboardData", JSON.stringify(dashboardRes));
-      sessionStorage.setItem("dashboardDataTimestamp", Date.now().toString());
+      localStorage.setItem("dashboardData", JSON.stringify(dashboardRes));
+      localStorage.setItem("dashboardDataTimestamp", Date.now().toString());
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
@@ -131,7 +130,7 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="flex items-center ">
-                <Button className="w-full " onClick={LogOutBtn}>
+                <Button className="w-full " onClick={handleLogout}>
                   Logout
                 </Button>
               </div>

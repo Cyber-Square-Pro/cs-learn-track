@@ -94,7 +94,7 @@ const UploadImagePage: React.FC = () => {
       formData.append("profile_pic", image); // File type
     }
 
-    const userData = JSON.parse(sessionStorage.userData);
+    const userData = JSON.parse(localStorage.userData);
 
     try {
       const response = await fetchData(

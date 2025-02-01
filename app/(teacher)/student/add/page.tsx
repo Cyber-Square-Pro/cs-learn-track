@@ -45,7 +45,7 @@ const gender = [
   { label: "Female", value: "female" },
 ] as const;
 
-let batch: { label: string; value: string }[] = [
+let batch: { label: string; value: any }[] = [
   { label: "Batch 1", value: "batch1" },
 ];
 
@@ -72,12 +72,12 @@ const formSchema = z.object({
 
 const AddStudentPage = () => {
   const [date, setDate] = React.useState<Date>();
-  const [batches, setBatches] = useState<{ name: string }[]>([]);
+  const [batches, setBatches] = useState<{ name: string,id:any }[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
   const navigate = useNavigate();
-  const handleDateChange = (selectedDate: Date | undefined) => {
+  const handleDateChange = (selectedDate:any) => {
     if (selectedDate) {
       const formattedDate = selectedDate.toISOString().slice(0, 10); // Format to yyyy-mm-dd
       setDate(formattedDate);
@@ -85,7 +85,9 @@ const AddStudentPage = () => {
   };
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    values.joinedDate = date;
+    if (date) {
+      values.joinedDate = date;
+    }
     sessionStorage.setItem("studentData", JSON.stringify(values));
     navigate("/teacher/student/image/upload");
   }

@@ -106,7 +106,7 @@ const UploadImagePage: React.FC = () => {
       );
       console.log("Response from backend:", response);
       sessionStorage.removeItem("studentData");
-      setStudentData(null);
+      // setStudentData({});
       navigate("/teacher/dashboard");
     } catch (error) {
       console.error("Error uploading data:", error);
@@ -181,7 +181,7 @@ const UploadImagePage: React.FC = () => {
                           viewBox="0 0 24 24"
                           stroke-width="1.5"
                           stroke="currentColor"
-                          class="size-14"
+                          className="size-14"
                         >
                           <path
                             stroke-linecap="round"

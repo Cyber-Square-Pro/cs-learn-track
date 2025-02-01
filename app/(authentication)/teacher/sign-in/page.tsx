@@ -21,6 +21,16 @@ const poppins = Poppins({
   weight: ["200", "400", "700"],
 });
 
+interface LoginResponse {
+  status: number;
+  access?: string;
+  name?: string;
+}
+
+interface FormData {
+  email: string;
+  teacherPassword: string;
+}
 const TeacherSignInPage = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -34,16 +44,20 @@ const TeacherSignInPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
-  const onSubmit = async (data) => {
+  
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetchData("/teacher/login/", "POST", data);
+      const response: LoginResponse = await fetchData("/teacher/login/", "POST", data);
       if (response.status === 200) {
         // Set JWT token in HTTP-only cookie
-        Cookies.set("accessToken", response.access, {
-          secure: true,
-          sameSite: "strict",
-          expires: 1, // 1 day
-        });
+        if (response.access) {
+          Cookies.set("accessToken", response.access, {
+            secure: true,
+            sameSite: "strict",
+            expires: 1, // 1 day
+          });
+        }
 
         // Store non-sensitive user data in session
         const userData = {

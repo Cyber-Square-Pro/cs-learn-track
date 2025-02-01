@@ -20,6 +20,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { fetchData } from "@/utils/api";
 import { time } from "console";
+
+
+interface FormData {
+  batchName: string;
+  description: string;
+}
+
+interface UserData {
+  accessToken: string;
+}
+
+
 const formSchema = z.object({
   batchName: z.string().min(2, {
     message: "Batch Name must be at least 2 characters.",
@@ -39,16 +51,18 @@ const CreateBatchPage = () => {
     },
   });
   const { toast } = useToast();
-  const OnSubmit = async (data) => {
+
+
+  const OnSubmit = async (data: FormData) => {
     const userDataString = sessionStorage.getItem("userData");
-    const userData = userDataString ? JSON.parse(userDataString) : null;
+    const userData: UserData | null = userDataString ? JSON.parse(userDataString) : null;
     try {
       const response = await fetchData(
         "/batch/create/",
         "POST",
         data,
         false,
-        userData.accessToken
+        userData?.accessToken
       );
       // console.log("Batch created successfully:", response);
       if (response.status === 201) {

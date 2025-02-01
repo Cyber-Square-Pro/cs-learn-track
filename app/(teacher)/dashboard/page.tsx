@@ -17,10 +17,16 @@ import {
   Table,
 } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
-import { SidebarPage } from "../(bars)/sidebar";
+import { SidebarPage } from "../_components/sidebar";
 import Cookies from "js-cookie";
+import { ReactElement } from "react";
 
-const ChartContainer = ({ className, children }) => (
+interface ChartContainerProps {
+  className?: string;
+  children: ReactElement;
+}
+
+const ChartContainer: React.FC<ChartContainerProps> = ({ className, children }) => (
   <div className={className}>
     <ResponsiveContainer width="100%" height="100%">
       {children}
@@ -166,7 +172,7 @@ const Dashboard = () => {
             <Card className="hover:bg-[#0d1218]">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-sm font-medium">
-                  Today's Sessions
+                {'Today\'s Sessions'}
                 </CardTitle>
               </CardHeader>
               <CardContent>

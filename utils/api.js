@@ -5,9 +5,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const fetchData = async (
   endpoint,
   method = "GET",
-  body = null,
+  body = any,
   isFormData = false,
-  token = null
+  token = any
 ) => {
   const url = `${API_BASE_URL}${endpoint}`;
   

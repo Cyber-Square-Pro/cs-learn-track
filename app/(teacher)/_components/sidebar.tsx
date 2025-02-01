@@ -16,7 +16,7 @@ export const SidebarPage = () => {
           >
             <span>
               <svg
-                class="w-7 h-7 text-gray-800 dark:text-white"
+                className="w-7 h-7 text-gray-800 dark:text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
@@ -38,7 +38,7 @@ export const SidebarPage = () => {
           <Button variant="ghost" className="justify-start w-full font-normal">
             <span>
               <svg
-                class="w-8 h-8 text-gray-800 dark:text-white"
+                className="w-8 h-8 text-gray-800 dark:text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
@@ -58,7 +58,7 @@ export const SidebarPage = () => {
           <Button variant="ghost" className="justify-start w-full font-normal">
             <span>
               <svg
-                class="w-7 h-7 text-gray-800 dark:text-white"
+                className="w-7 h-7 text-gray-800 dark:text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
@@ -74,7 +74,7 @@ export const SidebarPage = () => {
           <Button variant="ghost" className="justify-start w-full font-normal">
             <span>
               <svg
-                class="w-7 h-7 text-gray-800 dark:text-white"
+                className="w-7 h-7 text-gray-800 dark:text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
@@ -94,7 +94,7 @@ export const SidebarPage = () => {
           <Button variant="ghost" className="justify-start w-full font-normal">
             <span>
               <svg
-                class="w-6 h-6 text-gray-800 dark:text-white"
+                className="w-6 h-6 text-gray-800 dark:text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

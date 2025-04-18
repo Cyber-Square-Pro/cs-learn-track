@@ -1,28 +1,36 @@
-import Cookies from 'js-cookie';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import Cookies from "js-cookie";
+// Remove the incorrect zod import
+const API_BASE_URL = "http://127.0.0.1:8000/";
 
 const fetchData = async (
   endpoint,
   method = "GET",
   body = any,
   isFormData = false,
-  token = any
+  token = null
 ) => {
+  // Check if API_BASE_URL is defined
+  if (!API_BASE_URL) {
+    throw new Error(
+      "API_BASE_URL is not defined. Check your environment variables."
+    );
+  }
+
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   // Get token from cookie if not provided
-  const accessToken = token || Cookies.get('accessToken');
+  const accessToken = token || Cookies.get("accessToken");
 
   const options = {
     method: method,
     headers: {},
   };
-  
+
   if (accessToken) {
     options.headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
+  // Only set body if it's provided
   if (isFormData && body instanceof FormData) {
     options.body = body; // If formData, directly assign it to body
   } else if (body) {
@@ -32,8 +40,7 @@ const fetchData = async (
 
   try {
     const response = await fetch(url, options);
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("API Request Error:", error);
     throw error;
@@ -41,48 +48,3 @@ const fetchData = async (
 };
 
 export { fetchData };
-
-/*
-import React, { useEffect, useState } from 'react';
-import { fetchData } from '../utils/api';
-
-const Page = () => {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    // Example of a GET request
-    const getData = async () => {
-      try {
-        const response = await fetchData('GET', '/api/data');
-        setData(response);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    getData();
-  }, []);
-
-  const handlePostRequest = async () => {
-    // Example of a POST request
-    try {
-      const postData = { key: 'value' };
-      const response = await fetchData('POST', '/api/data', postData);
-      console.log('Post response:', response);
-    } catch (error) {
-      console.error('Error posting data:', error);
-    }
-  };
-
-  return (
-    <div>
-      <h1>Data</h1>
-      {data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}
-      <button onClick={handlePostRequest}>Send POST Request</button>
-    </div>
-  );
-};
-
-export default Page;
- */
-// fetchData('/your-endpoint', 'GET', null, false, 'your-bearer-token');

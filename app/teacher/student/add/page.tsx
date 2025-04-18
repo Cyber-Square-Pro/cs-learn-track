@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 // import cn from "classnames";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { fetchData } from "@/utils/api";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -76,7 +76,7 @@ const AddStudentPage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
-  const navigate = useNavigate();
+  const router = useRouter();
   const handleDateChange = (selectedDate:any) => {
     if (selectedDate) {
       const formattedDate = selectedDate.toISOString().slice(0, 10); // Format to yyyy-mm-dd
@@ -89,7 +89,7 @@ const AddStudentPage = () => {
       values.joinedDate = date;
     }
     sessionStorage.setItem("studentData", JSON.stringify(values));
-    navigate("/teacher/student/image/upload");
+    router.push("/teacher/student/image/upload");
   }
   const fetchBatches = async () => {
     const userData = JSON.parse(localStorage.userData);
@@ -445,7 +445,7 @@ const AddStudentPage = () => {
                 <Button
                   type="button"
                   className="dark bg-transparent border-[1.5px] font-[18px] "
-                  onClick={() => navigate("/teacher/dashboard")}
+                  onClick={() => router.push("/teacher/dashboard")}
                   variant="outline"
                 >
                   Cancel

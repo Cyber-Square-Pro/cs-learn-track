@@ -9,7 +9,7 @@ import { fetchData } from "@/utils/api";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 // fonts
@@ -33,7 +33,7 @@ interface FormData {
 }
 const TeacherSignInPage = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const router = useRouter();
   const UserSchema = z.object({
     email: z.string().email().min(5),
     teacherPassword: z.string().min(6).max(100),
@@ -44,11 +44,14 @@ const TeacherSignInPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
-  
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response: LoginResponse = await fetchData("/teacher/login/", "POST", data);
+      const response: LoginResponse = await fetchData(
+        "/teacher/login/",
+        "POST",
+        data as any
+      );
       if (response.status === 200) {
         // Set JWT token in HTTP-only cookie
         if (response.access) {
@@ -68,7 +71,7 @@ const TeacherSignInPage = () => {
 
         localStorage.setItem("userData", JSON.stringify(userData));
         setLoginError(null);
-        navigate("/teacher/dashboard");
+        router.push("/teacher/dashboard");
       } else if (response.status === 400) {
         setLoginError("Invalid email or password");
       }

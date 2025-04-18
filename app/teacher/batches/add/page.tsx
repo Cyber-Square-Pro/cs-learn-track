@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import withAuth from "@/lib/withAuth";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { fetchData } from "@/utils/api";
 import { time } from "console";
 
-
 interface FormData {
   batchName: string;
   description: string;
@@ -30,7 +29,6 @@ interface FormData {
 interface UserData {
   accessToken: string;
 }
-
 
 const formSchema = z.object({
   batchName: z.string().min(2, {
@@ -42,7 +40,7 @@ const formSchema = z.object({
 });
 
 const CreateBatchPage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,17 +50,17 @@ const CreateBatchPage = () => {
   });
   const { toast } = useToast();
 
-
   const OnSubmit = async (data: FormData) => {
     const userDataString = sessionStorage.getItem("userData");
-    const userData: UserData | null = userDataString ? JSON.parse(userDataString) : null;
+    const userData: UserData | null = userDataString
+      ? JSON.parse(userDataString)
+      : null;
     try {
       const response = await fetchData(
         "/batch/create/",
         "POST",
-        data,
+        data as any,
         false,
-        userData?.accessToken
       );
       // console.log("Batch created successfully:", response);
       if (response.status === 201) {
@@ -73,7 +71,7 @@ const CreateBatchPage = () => {
           description: `${data.batchName} has been created successfully.`,
         });
         form.reset();
-        navigate("/teacher/dashboard");
+        router.push("/teacher/dashboard");
       } else if (response.status !== 201) {
         toast({
           variant: "destructive",
@@ -137,7 +135,7 @@ const CreateBatchPage = () => {
               <Button
                 type="button"
                 className="dark bg-transparent border-[1.5px] font-[18px] "
-                onClick={() => navigate("/teacher/dashboard")}
+                onClick={() => router.push("/teacher/dashboard")}
                 variant="outline"
               >
                 Cancel

@@ -16,7 +16,7 @@ import {
   TableCell,
   Table,
 } from "@/components/ui/table";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { SidebarPage } from "../_components/sidebar";
 import Cookies from "js-cookie";
 import { ReactElement } from "react";
@@ -26,7 +26,10 @@ interface ChartContainerProps {
   children: ReactElement;
 }
 
-const ChartContainer: React.FC<ChartContainerProps> = ({ className, children }) => (
+const ChartContainer: React.FC<ChartContainerProps> = ({
+  className,
+  children,
+}) => (
   <div className={className}>
     <ResponsiveContainer width="100%" height="100%">
       {children}
@@ -52,22 +55,24 @@ interface DashboardData {
 }
 
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const router = useRouter();
   const userDataString = localStorage.getItem("userData");
   const userData = userDataString ? JSON.parse(userDataString) : null;
 
   const handleLogout = () => {
     // Remove the access token cookie
-    Cookies.remove('accessToken');
-    
+    Cookies.remove("accessToken");
+
     // Clear local storage
-    localStorage.removeItem('userData');
-    localStorage.removeItem('dashboardData');
-    localStorage.removeItem('dashboardDataTimestamp');
-    
+    localStorage.removeItem("userData");
+    localStorage.removeItem("dashboardData");
+    localStorage.removeItem("dashboardDataTimestamp");
+
     // Redirect to login page
-    navigate('/teacher/sign-in');
+    router.push("/teacher/sign-in");
   };
 
   const fetchDashboardData = async () => {
@@ -165,14 +170,16 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardData ? dashboardData.active_teachers : "Loading..."}
+                  {dashboardData && dashboardData.active_teachers
+                    ? dashboardData.active_teachers
+                    : "0"}
                 </div>
               </CardContent>
             </Card>
             <Card className="hover:bg-[#0d1218]">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-sm font-medium">
-                {'Today\'s Sessions'}
+                  {"Today's Sessions"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -240,24 +247,24 @@ const Dashboard = () => {
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[0]
-                              .studentName
+                              ?.studentName
                           }
                         </TableCell>
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[0]
-                              .admissionNo
+                              ?.admissionNo
                           }
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[0].batch}
+                          {dashboardData?.recent_students_details[0]?.batch}
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[0].email}
+                          {dashboardData?.recent_students_details[0]?.email}
                         </TableCell>
                         <TableCell>
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[0].active
+                            {dashboardData?.recent_students_details[0]?.active
                               ? "Active"
                               : "Inactive"}
                           </span>
@@ -272,24 +279,24 @@ const Dashboard = () => {
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[1]
-                              .studentName
+                              ?.studentName
                           }
                         </TableCell>
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[1]
-                              .admissionNo
+                              ?.admissionNo
                           }
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[1].batch}
+                          {dashboardData?.recent_students_details[1]?.batch}
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[1].email}
+                          {dashboardData?.recent_students_details[1]?.email}
                         </TableCell>
                         <TableCell>
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[1].active
+                            {dashboardData?.recent_students_details[1]?.active
                               ? "Active"
                               : "Inactive"}
                           </span>
@@ -304,24 +311,24 @@ const Dashboard = () => {
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[2]
-                              .studentName
+                              ?.studentName
                           }
                         </TableCell>
                         <TableCell>
                           {
                             dashboardData?.recent_students_details[2]
-                              .admissionNo
+                              ?.admissionNo
                           }
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[2].batch}
+                          {dashboardData?.recent_students_details[2]?.batch}
                         </TableCell>
                         <TableCell>
-                          {dashboardData?.recent_students_details[2].email}
+                          {dashboardData?.recent_students_details[2]?.email}
                         </TableCell>
                         <TableCell>
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[2].active
+                            {dashboardData?.recent_students_details[2]?.active
                               ? "Active"
                               : "Inactive"}
                           </span>
@@ -345,13 +352,13 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
-                  onClick={() => navigate("/teacher/student/add")}
+                  onClick={() => router.push("/teacher/student/add")}
                   className="w-full "
                 >
                   Register New Student
                 </Button>
                 <Button
-                  onClick={() => navigate("/teacher/batches/add")}
+                  onClick={() => router.push("/teacher/batches/add")}
                   className="w-full "
                   variant={"outline"}
                 >

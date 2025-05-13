@@ -122,7 +122,7 @@ export const SidebarPage = () => {
                 />
               </svg>
             </span>
-            Reports
+            Attendance
           </Button>
         </nav>
       </div>

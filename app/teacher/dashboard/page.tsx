@@ -129,7 +129,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">
-        <SidebarPage/>
+        <SidebarPage />
 
         {/* Main Content */}
         <div className="flex-1 p-8">
@@ -254,102 +254,115 @@ const Dashboard = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[0]
-                              ?.studentName
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[0]
-                              ?.admissionNo
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[0]?.batch}
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[0]?.email}
-                        </TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[0]?.active
-                              ? "Active"
-                              : "Inactive"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[1]
-                              ?.studentName
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[1]
-                              ?.admissionNo
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[1]?.batch}
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[1]?.email}
-                        </TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[1]?.active
-                              ? "Active"
-                              : "Inactive"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[2]
-                              ?.studentName
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {
-                            dashboardData?.recent_students_details[2]
-                              ?.admissionNo
-                          }
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[2]?.batch}
-                        </TableCell>
-                        <TableCell>
-                          {dashboardData?.recent_students_details[2]?.email}
-                        </TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                            {dashboardData?.recent_students_details[2]?.active
-                              ? "Active"
-                              : "Inactive"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                      {dashboardData?.recent_students_details.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center">
+                            No recent students found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        <>
+                          <TableRow>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[0]
+                                  ?.studentName
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[0]
+                                  ?.admissionNo
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[0]?.batch}
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[0]?.email}
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                                {dashboardData?.recent_students_details[0]
+                                  ?.active
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[1]
+                                  ?.studentName
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[1]
+                                  ?.admissionNo
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[1]?.batch}
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[1]?.email}
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                                {dashboardData?.recent_students_details[1]
+                                  ?.active
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[2]
+                                  ?.studentName
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {
+                                dashboardData?.recent_students_details[2]
+                                  ?.admissionNo
+                              }
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[2]?.batch}
+                            </TableCell>
+                            <TableCell>
+                              {dashboardData?.recent_students_details[2]?.email}
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
+                                {dashboardData?.recent_students_details[2]
+                                  ?.active
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>

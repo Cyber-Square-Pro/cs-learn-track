@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, Eye, GraduationCap, Users, Trash2 } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  Eye,
+  GraduationCap,
+  Users,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarPage } from "../_components/sidebar";
@@ -104,16 +111,17 @@ export default function StudentManagement() {
   >(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<string>("all");
+  const [studentList, setStudentList] = useState(students);
 
   // Get unique batch names for the filter dropdown
   const batchOptions = useMemo(() => {
-    const batches = [...new Set(students.map((student) => student.batch))];
+    const batches = [...new Set(studentList.map((student) => student.batch))];
     return ["all", ...batches];
-  }, []);
+  }, [studentList]);
 
   // Filter students based on search term and selected batch
   const filteredStudents = useMemo(() => {
-    return students.filter((student) => {
+    return studentList.filter((student) => {
       const matchesSearch =
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.adminNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,7 +132,7 @@ export default function StudentManagement() {
 
       return matchesSearch && matchesBatch;
     });
-  }, [searchTerm, selectedBatch]);
+  }, [searchTerm, selectedBatch, studentList]);
 
   // View student details
   const viewStudentDetails = (student) => {
@@ -132,17 +140,16 @@ export default function StudentManagement() {
     setIsDialogOpen(true);
   };
 
+  // Remove student
+  const removeStudent = (studentId) => {
+    setStudentList((current) =>
+      current.filter((student) => student.id !== studentId)
+    );
+  };
+
   // Handle batch selection
   const handleBatchChange = (value: string) => {
     setSelectedBatch(value);
-  };
-
-  // Handle student removal
-  const removeStudent = (studentId: number) => {
-    // This would typically make an API call to delete the student
-    // For now, we'll just show an alert
-    alert(`Student with ID: ${studentId} would be removed`);
-    // In a real implementation, you would update the state after successful deletion
   };
 
   // Get batch color class
@@ -157,8 +164,7 @@ export default function StudentManagement() {
   return (
     <ThemeProvider defaultTheme="dark" forcedTheme="dark">
       <div className="min-h-screen bg-[#181818] flex dark  gap -0">
-        <SidebarPage
-         />
+        <SidebarPage />
         {/* Header */}
         <div className="block w-full">
           <header className="bg-[#181818] py-4 px-8">
@@ -176,7 +182,9 @@ export default function StudentManagement() {
               </div>
               <div className="bg-[#2d1a45] px-4 py-2 rounded-md flex items-center">
                 <Users className="text-[#b8b8d4] h-5 w-5 mr-2" />
-                <span className="text-white">{students.length} Students</span>
+                <span className="text-white">
+                  {studentList.length} Students
+                </span>
               </div>
             </div>
           </header>
@@ -286,7 +294,7 @@ export default function StudentManagement() {
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant="destructive"
+                            variant="ghost"
                             size="sm"
                             onClick={() => removeStudent(student.id)}
                             className="bg-red-600 hover:bg-red-700 text-white"
@@ -300,7 +308,7 @@ export default function StudentManagement() {
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={6} {/* Updated colspan to account for the new column */}
+                        colSpan={6}
                         className="text-center py-8 text-[#b8b8d4]"
                       >
                         No students found
@@ -313,7 +321,7 @@ export default function StudentManagement() {
           </main>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="bg-[#1a1b36] border-[#2d2d4a] text-white">
             <DialogHeader className=" dark">
               <DialogTitle className="text-white">Student Details</DialogTitle>

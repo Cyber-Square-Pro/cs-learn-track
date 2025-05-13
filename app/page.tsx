@@ -41,8 +41,10 @@ const LandingPage = () => {
               </button>
             </div>
           </div>
-          <br />
-          <br />
+          <p className="mt-4 text-lg text-center">
+            Join us to track your learning progress and achieve your goals!
+          </p>
+          <div className="mt-8"></div>  
           <Image
             src="/lp_img.webp"
             alt="Education"

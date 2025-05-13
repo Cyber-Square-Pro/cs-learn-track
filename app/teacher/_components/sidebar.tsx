@@ -1,60 +1,73 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+// import { Link } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const SidebarPage = () => {
+  const pathname = usePathname();
   return (
     <div>
-      <div className="w-64 p-6 h-full space-y-4 border-r bg-[#0a0a0a] text-white">
+      <div className="w-64 p-6 h-full space-y-4  bg-[#0a0a0a] text-white">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 bg-blue-500 rounded" />
           <span className="text-lg font-semibold">LearnTrack</span>
         </div>
         <nav className="space-y-2">
-          <Button
-            variant="secondary"
-            className="justify-start w-full font-normal"
-          >
-            <span>
-              <svg
-                className="w-7 h-7 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 15v4m6-6v6m6-4v4m6-6v6M3 11l6-5 6 5 5.5-5.5"
-                />
-              </svg>
-            </span>
-            Dashboard
-          </Button>
-          <Button variant="ghost" className="justify-start w-full font-normal">
-            <span>
-              <svg
-                className="w-8 h-8 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </span>
-            Students
-          </Button>
+          <Link href="/teacher/dashboard">
+            <Button
+              variant={
+                pathname === "/teacher/dashboard" ? "secondary" : "ghost"
+              }
+              className="justify-start w-full font-normal"
+            >
+              <span>
+                <svg
+                  className="w-7 h-7 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 15v4m6-6v6m6-4v4m6-6v6M3 11l6-5 6 5 5.5-5.5"
+                  />
+                </svg>
+              </span>
+              Dashboard
+            </Button>
+          </Link>
+          <Link href="/teacher/students">
+            <Button
+              variant={pathname === "/teacher/students" ? "secondary" : "ghost"}
+              className="justify-start w-full font-normal"
+            >
+              <span>
+                <svg
+                  className="w-8 h-8 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </span>
+              Students
+            </Button>
+          </Link>
           <Button variant="ghost" className="justify-start w-full font-normal">
             <span>
               <svg

@@ -58,9 +58,16 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
+  const [userData, setUserData] = useState<any>(null);
   const router = useRouter();
-  const userDataString = localStorage.getItem("userData");
-  const userData = userDataString ? JSON.parse(userDataString) : null;
+
+  useEffect(() => {
+    // Access localStorage only after component has mounted (client-side)
+    const userDataString = localStorage.getItem("userData");
+    if (userDataString) {
+      setUserData(JSON.parse(userDataString));
+    }
+  }, []);
 
   const handleLogout = () => {
     // Remove the access token cookie
@@ -84,8 +91,12 @@ const Dashboard = () => {
         false
       );
       setDashboardData(dashboardRes);
-      localStorage.setItem("dashboardData", JSON.stringify(dashboardRes));
-      localStorage.setItem("dashboardDataTimestamp", Date.now().toString());
+
+      // Store in localStorage only on client-side
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dashboardData", JSON.stringify(dashboardRes));
+        localStorage.setItem("dashboardDataTimestamp", Date.now().toString());
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
@@ -118,7 +129,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">
-        <SidebarPage></SidebarPage>
+        <SidebarPage/>
 
         {/* Main Content */}
         <div className="flex-1 p-8">

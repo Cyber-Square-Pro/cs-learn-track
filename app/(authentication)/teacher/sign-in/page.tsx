@@ -58,7 +58,6 @@ const TeacherSignInPage = () => {
           Cookies.set("accessToken", response.access, {
             secure: true,
             sameSite: "strict",
-            expires: 1, // 1 day
           });
         }
 

@@ -191,14 +191,7 @@ export default function StudentManagement() {
 
           {/* Main Content */}
           <main className="container mx-auto py-8 px-8">
-            <div className="bg-[#0A0A0A] rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-bold text-white mb-1">
-                Student Management
-              </h2>
-              <p className="text-[#b8b8d4]">
-                View, search, and filter student information across all batches
-              </p>
-            </div>
+           
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="relative flex-1">

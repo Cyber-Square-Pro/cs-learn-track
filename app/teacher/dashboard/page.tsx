@@ -20,6 +20,15 @@ import { useRouter } from "next/navigation";
 import { SidebarPage } from "../_components/sidebar";
 import Cookies from "js-cookie";
 import { ReactElement } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ChartContainerProps {
   className?: string;
@@ -58,6 +67,10 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
+
+  const [batches, setBatches] = useState<{ name: string; id: any }[]>([]);
+
+  let batch: { label: string; value: any }[] = [];
   const [userData, setUserData] = useState<any>(null);
   const router = useRouter();
 
@@ -126,6 +139,25 @@ const Dashboard = () => {
       }
     });
   }, [dashboardData]);
+  const fetchBatches = async () => {
+    const response = await fetchData(
+      "/batch/list/",
+      "POST",
+      null,
+      false,
+      userData.accessToken
+    );
+    setBatches(response.batches);
+    const responseBatches = response.batches;
+  };
+  useEffect(() => {
+    fetchBatches();
+  }, []);
+  batch = batches.map((batch) => ({
+    label: batch.name,
+    value: batch.id,
+  }));
+
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">
@@ -211,7 +243,7 @@ const Dashboard = () => {
 
           {/* Chart */}
           <Card className="mb-8">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
               <CardTitle>Attendance Trends</CardTitle>
             </CardHeader>
             <CardContent>
@@ -388,7 +420,11 @@ const Dashboard = () => {
                 >
                   Create Batch
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push("/teacher/sessions/create")}
+                >
                   Schedule Session
                 </Button>
                 <Button variant="outline" className="w-full">

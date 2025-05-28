@@ -91,7 +91,7 @@ export function StudentIdCard({
       {/* Footer */}
       <div className="bg-black p-3 text-center text-xs text-white">
         <p className="mt-1 text-purple-300">www.learnTrack.edu</p>
-      </div>
+      </div>    
     </Card>
   );
 }

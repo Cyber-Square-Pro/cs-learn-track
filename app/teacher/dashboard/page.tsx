@@ -140,13 +140,7 @@ const Dashboard = () => {
     });
   }, [dashboardData]);
   const fetchBatches = async () => {
-    const response = await fetchData(
-      "/batch/list/",
-      "POST",
-      null,
-      false,
-      userData.accessToken
-    );
+    const response = await fetchData("/batch/list/", "POST", null, false);
     setBatches(response.batches);
     const responseBatches = response.batches;
   };

@@ -274,7 +274,7 @@ export default function CreateSessionPage() {
                       batch_id: "",
                       startDateTime: "",
                       endDateTime: "",
-                    });
+                    }); 
                     setErrors({});
                     setSubmitSuccess(false);
                   }}

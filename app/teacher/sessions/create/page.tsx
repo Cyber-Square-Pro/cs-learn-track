@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,65 +14,89 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CalendarDays, Clock, Users, BookOpen } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CalendarDays, Clock, Users, BookOpen, ArrowLeft } from "lucide-react";
 import { fetchData } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 interface SessionFormData {
   sessionName: string;
   batch_id: string;
-  startDateTime: string;
-  endDateTime: string;
+  date: string;
+  period: string;
+}
+
+interface Batch {
+  id: number;
+  name: string;
 }
 
 export default function CreateSessionPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<SessionFormData>({
     sessionName: "",
     batch_id: "",
-    startDateTime: "",
-    endDateTime: "",
+    date: "",
+    period: "",
   });
   const [errors, setErrors] = useState<Partial<SessionFormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(true);
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        setLoadingBatches(true);
+        const response = await fetchData("batch/list/", "POST", {});
+        console.log("Batch list response:", response);
+        if (response && response.status === 200 && response.batches) {
+          setBatches(response.batches);
+        } else {
+          console.error("Invalid response format:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+      } finally {
+        setLoadingBatches(false);
+      }
+    };
+
+    fetchBatches();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<SessionFormData> = {};
-    const now = new Date();
 
     if (!formData.sessionName.trim()) {
       newErrors.sessionName = "Session name is required";
     }
 
     if (!formData.batch_id.trim()) {
-      newErrors.batch_id = "Batch ID is required";
-    } else if (
-      isNaN(Number(formData.batch_id)) ||
-      Number(formData.batch_id) <= 0
-    ) {
-      newErrors.batch_id = "Batch ID must be a positive number";
+      newErrors.batch_id = "Batch is required";
     }
 
-    if (!formData.startDateTime) {
-      newErrors.startDateTime = "Start date and time is required";
+    if (!formData.date) {
+      newErrors.date = "Date is required";
     } else {
-      // Check if start date is in the past
-      const startDate = new Date(formData.startDateTime);
-      if (startDate < now) {
-        newErrors.startDateTime = "Start date cannot be in the past";
+      // Check if date is in the past
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        newErrors.date = "Date cannot be in the past";
       }
     }
 
-    if (!formData.endDateTime) {
-      newErrors.endDateTime = "End date and time is required";
-    }
-
-    if (formData.startDateTime && formData.endDateTime) {
-      const startDate = new Date(formData.startDateTime);
-      const endDate = new Date(formData.endDateTime);
-
-      if (endDate <= startDate) {
-        newErrors.endDateTime = "End time must be after start time";
-      }
+    if (!formData.period) {
+      newErrors.period = "Period is required";
     }
 
     setErrors(newErrors);
@@ -87,6 +111,30 @@ export default function CreateSessionPage() {
     }
   };
 
+  const calculateDateTime = (
+    date: string,
+    period: number
+  ): { startDateTime: string; endDateTime: string } => {
+    const selectedDate = new Date(date);
+
+    // Calculate start hour (8 AM for period 1, 9 AM for period 2, etc.)
+    const startHour = 7 + period; // 8 AM = 7 + 1
+    const endHour = startHour + 1;
+
+    // Create start datetime
+    const startDateTime = new Date(selectedDate);
+    startDateTime.setHours(startHour, 0, 0, 0);
+
+    // Create end datetime
+    const endDateTime = new Date(selectedDate);
+    endDateTime.setHours(endHour, 0, 0, 0);
+
+    return {
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -97,12 +145,19 @@ export default function CreateSessionPage() {
     setIsSubmitting(true);
 
     try {
+      const { startDateTime, endDateTime } = calculateDateTime(
+        formData.date,
+        Number.parseInt(formData.period)
+      );
+
       const sessionData = {
         sessionName: formData.sessionName,
         batch_id: Number.parseInt(formData.batch_id),
-        startDateTime: formData.startDateTime,
-        endDateTime: formData.endDateTime,
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
       };
+
+      console.log("Sending session data:", sessionData);
 
       // Send API request to create session
       const response = await fetchData(
@@ -117,15 +172,15 @@ export default function CreateSessionPage() {
         setSubmitSuccess(false);
       } else {
         setSubmitSuccess(true);
+        // Reset form after successful submission
+        setFormData({
+          sessionName: "",
+          batch_id: "",
+          date: "",
+          period: "",
+        });
+        setErrors({});
       }
-
-      // Reset form after successful submission
-      setFormData({
-        sessionName: "",
-        batch_id: "",
-        startDateTime: "",
-        endDateTime: "",
-      });
     } catch (error) {
       console.error("Error creating session:", error);
     } finally {
@@ -157,13 +212,26 @@ export default function CreateSessionPage() {
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Session Details
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              Fill in the details for your new teaching session
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/teacher/dashboard/")}
+                className="text-gray-400 hover:text-white hover:bg-gray-800"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                
+              </Button>
+              <div className="flex-1">
+                <CardTitle className="text-white flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Session Details
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Fill in the details for your new teaching session
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -192,18 +260,29 @@ export default function CreateSessionPage() {
                   className="text-gray-200 flex items-center gap-2"
                 >
                   <Users className="h-4 w-4" />
-                  Batch ID *
+                  Batch *
                 </Label>
-                <Input
-                  id="batch_id"
-                  type="number"
-                  placeholder="e.g., 101"
+                <Select
                   value={formData.batch_id}
-                  onChange={(e) =>
-                    handleInputChange("batch_id", e.target.value)
+                  onValueChange={(value) =>
+                    handleInputChange("batch_id", value)
                   }
-                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500"
-                />
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:border-blue-500">
+                    <SelectValue
+                      placeholder={
+                        loadingBatches ? "Loading batches..." : "Select batch"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id.toString()}>
+                        {batch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.batch_id && (
                   <p className="text-red-400 text-sm">{errors.batch_id}</p>
                 )}
@@ -212,47 +291,51 @@ export default function CreateSessionPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label
-                    htmlFor="startDateTime"
+                    htmlFor="date"
                     className="text-gray-200 flex items-center gap-2"
                   >
-                    <Clock className="h-4 w-4" />
-                    Start Date & Time *
+                    <CalendarDays className="h-4 w-4" />
+                    Date *
                   </Label>
                   <Input
-                    id="startDateTime"
-                    type="datetime-local"
-                    value={formData.startDateTime}
-                    onChange={(e) =>
-                      handleInputChange("startDateTime", e.target.value)
-                    }
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
                     className="bg-gray-800 border-gray-700 text-white focus:border-blue-500"
                   />
-                  {errors.startDateTime && (
-                    <p className="text-red-400 text-sm">
-                      {errors.startDateTime}
-                    </p>
+                  {errors.date && (
+                    <p className="text-red-400 text-sm">{errors.date}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label
-                    htmlFor="endDateTime"
+                    htmlFor="period"
                     className="text-gray-200 flex items-center gap-2"
                   >
                     <Clock className="h-4 w-4" />
-                    End Date & Time *
+                    Period *
                   </Label>
-                  <Input
-                    id="endDateTime"
-                    type="datetime-local"
-                    value={formData.endDateTime}
-                    onChange={(e) =>
-                      handleInputChange("endDateTime", e.target.value)
+                  <Select
+                    value={formData.period}
+                    onValueChange={(value) =>
+                      handleInputChange("period", value)
                     }
-                    className="bg-gray-800 border-gray-700 text-white focus:border-blue-500"
-                  />
-                  {errors.endDateTime && (
-                    <p className="text-red-400 text-sm">{errors.endDateTime}</p>
+                  >
+                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:border-blue-500">
+                      <SelectValue placeholder="Select period" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((period) => (
+                        <SelectItem key={period} value={period.toString()}>
+                          Period {period}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.period && (
+                    <p className="text-red-400 text-sm">{errors.period}</p>
                   )}
                 </div>
               </div>
@@ -272,9 +355,9 @@ export default function CreateSessionPage() {
                     setFormData({
                       sessionName: "",
                       batch_id: "",
-                      startDateTime: "",
-                      endDateTime: "",
-                    }); 
+                      date: "",
+                      period: "",
+                    });
                     setErrors({});
                     setSubmitSuccess(false);
                   }}

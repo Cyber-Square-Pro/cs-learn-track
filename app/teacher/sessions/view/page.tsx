@@ -11,11 +11,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
   ChevronLeft,
   ChevronRight,
   Clock,
   Users,
   Calendar,
+  X,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
 import { SidebarPage } from "../../_components/sidebar";
@@ -123,6 +136,20 @@ export default function CalendarPage() {
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [batchSessions, setBatchSessions] = useState<BatchData[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
+  const [editingSession, setEditingSession] = useState<
+    (Session & { batch_name: string; batch_id: number }) | null
+  >(null);
+  const [editFormData, setEditFormData] = useState({
+    sessionName: "",
+    batch_id: "",
+    startDateTime: "",
+    endDateTime: "",
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -266,6 +293,76 @@ export default function CalendarPage() {
     })}`;
   };
 
+  const handleSessionClick = (
+    session: Session & { batch_name: string; batch_id: number }
+  ) => {
+    setEditingSession(session);
+    setEditFormData({
+      sessionName: session.sessionName,
+      batch_id: session.batch_id.toString(),
+      startDateTime: session.startDateTime.slice(0, -1), // Remove 'Z' for datetime-local input
+      endDateTime: session.endDateTime.slice(0, -1),
+    });
+  };
+
+  const handleEditFormChange = (field: string, value: string) => {
+    setEditFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUpdateSession = async () => {
+    if (!editingSession) return;
+
+    setIsUpdating(true);
+    setUpdateMessage(null);
+
+    try {
+      const updateData: any = {
+        session_id: editingSession.id,
+      };
+
+      // Only include fields that have changed
+      if (editFormData.sessionName !== editingSession.sessionName) {
+        updateData.sessionName = editFormData.sessionName;
+      }
+      if (editFormData.batch_id !== editingSession.batch_id.toString()) {
+        updateData.batch = parseInt(editFormData.batch_id);
+      }
+      if (editFormData.startDateTime + "Z" !== editingSession.startDateTime) {
+        updateData.startDateTime = editFormData.startDateTime + "Z";
+      }
+      if (editFormData.endDateTime + "Z" !== editingSession.endDateTime) {
+        updateData.endDateTime = editFormData.endDateTime + "Z";
+      }
+
+      const response = await fetchData("session/update/", "POST", updateData);
+      console.log("Session updated:", response);
+
+      if (response.error) {
+        setUpdateMessage({ type: "error", message: response.error });
+      } else {
+        setUpdateMessage({
+          type: "success",
+          message: "Session updated successfully!",
+        });
+        // Refresh sessions data
+        fetchBatchSessions(selectedBatchId);
+        // Close modal after a short delay
+        setTimeout(() => {
+          setEditingSession(null);
+          setUpdateMessage(null);
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Error updating session:", error);
+      setUpdateMessage({
+        type: "error",
+        message: "Failed to update session. Please try again.",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <div className="flex w-full dark">
       <SidebarPage />
@@ -405,7 +502,16 @@ export default function CalendarPage() {
                               height: `${position.height}px`,
                             }}
                           >
-                            <div className="h-full bg-blue-600 rounded-md p-2 border border-blue-500 shadow-lg hover:bg-blue-700 transition-colors cursor-pointer">
+                            <div
+                              className="h-full bg-blue-600 rounded-md p-2 border border-blue-500 shadow-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                              onClick={() =>
+                                handleSessionClick({
+                                  ...session,
+                                  batch_name: session.batch_name,
+                                  batch_id: session.batch_id,
+                                })
+                              }
+                            >
                               <div className="text-xs font-semibold text-white truncate">
                                 {session.sessionName}
                               </div>
@@ -447,6 +553,138 @@ export default function CalendarPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Session Dialog */}
+      <Dialog
+        open={!!editingSession}
+        onOpenChange={() => setEditingSession(null)}
+      >
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              Edit Session
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update session details below
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingSession && (
+            <div className="space-y-4">
+              {updateMessage && (
+                <Alert
+                  className={`${
+                    updateMessage.type === "success"
+                      ? "border-green-600 bg-green-950/50"
+                      : "border-red-600 bg-red-950/50"
+                  }`}
+                >
+                  {updateMessage.type === "success" ? (
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-400" />
+                  )}
+                  <AlertDescription
+                    className={
+                      updateMessage.type === "success"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }
+                  >
+                    {updateMessage.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-sessionName" className="text-gray-200">
+                  Session Name
+                </Label>
+                <Input
+                  id="edit-sessionName"
+                  value={editFormData.sessionName}
+                  onChange={(e) =>
+                    handleEditFormChange("sessionName", e.target.value)
+                  }
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-batch" className="text-gray-200">
+                  Batch
+                </Label>
+                <Select
+                  value={editFormData.batch_id}
+                  onValueChange={(value) =>
+                    handleEditFormChange("batch_id", value)
+                  }
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id.toString()}>
+                        {batch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-startDateTime" className="text-gray-200">
+                    Start Date & Time
+                  </Label>
+                  <Input
+                    id="edit-startDateTime"
+                    type="datetime-local"
+                    value={editFormData.startDateTime}
+                    onChange={(e) =>
+                      handleEditFormChange("startDateTime", e.target.value)
+                    }
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-endDateTime" className="text-gray-200">
+                    End Date & Time
+                  </Label>
+                  <Input
+                    id="edit-endDateTime"
+                    type="datetime-local"
+                    value={editFormData.endDateTime}
+                    onChange={(e) =>
+                      handleEditFormChange("endDateTime", e.target.value)
+                    }
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleUpdateSession}
+                  disabled={isUpdating}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {isUpdating ? "Updating..." : "Update Session"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingSession(null)}
+                  className="dark"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { SidebarPage } from "../../_components/sidebar";
+import { fetchData } from "@/utils/api";
 
 interface Session {
   id: number;
@@ -94,12 +102,14 @@ const timeSlots = [
   "13:00",
   "14:00",
   "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
 ];
 
 const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+interface Batch {
+  id: number;
+  name: string;
+}
 
 export default function CalendarPage() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
@@ -108,6 +118,71 @@ export default function CalendarPage() {
     monday.setDate(today.getDate() - today.getDay() + 1);
     return monday;
   });
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [selectedBatchId, setSelectedBatchId] = useState<string>("all");
+  const [loadingBatches, setLoadingBatches] = useState(true);
+  const [batchSessions, setBatchSessions] = useState<BatchData[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        setLoadingBatches(true);
+        const response = await fetchData("batch/list/", "POST", {});
+        console.log("Batch list response:", response);
+        if (response && response.status === 200 && response.batches) {
+          setBatches(response.batches);
+        } else {
+          console.error("Invalid response format:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+      } finally {
+        setLoadingBatches(false);
+      }
+    };
+
+    fetchBatches();
+  }, []);
+
+  const fetchBatchSessions = async (batchId: string) => {
+    if (batchId === "all") {
+      setBatchSessions(mockBatchData);
+      return;
+    }
+
+    try {
+      setLoadingSessions(true);
+      const response = await fetchData("batch/get_batch_sessions/", "POST", {
+        batch_id: parseInt(batchId),
+      });
+      console.log("Batch sessions response:", response);
+
+      if (response && response.sessions) {
+        // Transform API response to match our BatchData structure
+        const batchData: BatchData = {
+          batch_id: parseInt(batchId),
+          batch_name:
+            batches.find((b) => b.id.toString() === batchId)?.name ||
+            "Unknown Batch",
+          sessions: response.sessions,
+        };
+        setBatchSessions([batchData]);
+      } else {
+        setBatchSessions([]);
+      }
+    } catch (error) {
+      console.error("Error fetching batch sessions:", error);
+      setBatchSessions([]);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleBatchChange = (value: string) => {
+    setSelectedBatchId(value);
+    fetchBatchSessions(value);
+  };
 
   const weekDates = useMemo(() => {
     const dates = [];
@@ -135,7 +210,7 @@ export default function CalendarPage() {
     const dateStr = date.toISOString().split("T")[0];
     const sessions: (Session & { batch_name: string; batch_id: number })[] = [];
 
-    mockBatchData.forEach((batch) => {
+    batchSessions.forEach((batch) => {
       batch.sessions.forEach((session) => {
         const sessionDate = new Date(session.startDateTime)
           .toISOString()
@@ -209,6 +284,27 @@ export default function CalendarPage() {
               </div>
 
               <div className="flex items-center gap-4">
+                <Select
+                  value={selectedBatchId}
+                  onValueChange={handleBatchChange}
+                >
+                  <SelectTrigger className="w-[200px] bg-gray-800 border-gray-700 text-white">
+                    <SelectValue
+                      placeholder={
+                        loadingBatches ? "Loading..." : "Select batch"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    <SelectItem value="all">Choose a Batch</SelectItem>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id.toString()}>
+                        {batch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -346,7 +442,7 @@ export default function CalendarPage() {
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span>Time slots: 8:00 AM - 6:00 PM</span>
+              <span>Time slots: 8:00 AM - 3:00 PM</span>
             </div>
           </div>
         </div>

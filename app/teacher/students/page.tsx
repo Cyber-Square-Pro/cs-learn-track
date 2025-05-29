@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search,
   ChevronDown,
@@ -35,121 +35,104 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchData } from "@/utils/api";
 
-// Mock student data
-const students = [
-  {
-    id: 1,
-    adminNumber: "A12345",
-    name: "Michael Chang",
-    email: "michael.chang@example.com",
-    phone: "(555) 345-6789",
-    batch: "2022A",
-  },
-  {
-    id: 2,
-    adminNumber: "A12346",
-    name: "Ethan Davis",
-    email: "ethan.davis@example.com",
-    phone: "(555) 789-0123",
-    batch: "2022A",
-  },
-  {
-    id: 3,
-    adminNumber: "A12347",
-    name: "James Smith",
-    email: "james.smith@example.com",
-    phone: "(555) 567-8901",
-    batch: "2022B",
-  },
-  {
-    id: 4,
-    adminNumber: "A12348",
-    name: "Noah Wilson",
-    email: "noah.wilson@example.com",
-    phone: "(555) 901-2345",
-    batch: "2022B",
-  },
-  {
-    id: 5,
-    adminNumber: "A12349",
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    phone: "(555) 123-4567",
-    batch: "2023A",
-  },
-  {
-    id: 6,
-    adminNumber: "A12350",
-    name: "Sophia Williams",
-    email: "sophia.williams@example.com",
-    phone: "(555) 456-7890",
-    batch: "2023A",
-  },
-  {
-    id: 7,
-    adminNumber: "A12351",
-    name: "Olivia Brown",
-    email: "olivia.brown@example.com",
-    phone: "(555) 234-5678",
-    batch: "2023B",
-  },
-  {
-    id: 8,
-    adminNumber: "A12352",
-    name: "William Taylor",
-    email: "william.taylor@example.com",
-    phone: "(555) 678-9012",
-    batch: "2023B",
-  },
-];
+interface Student {
+  name: string;
+  email: string;
+  admissionNo: number;
+}
+
+interface Batch {
+  id: number;
+  name: string;
+}
+
+interface BatchStudentsResponse {
+  batch: string;
+  students: Student[];
+}
+
 
 export default function StudentManagement() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<
-    (typeof students)[0] | null
-  >(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<string>("all");
-  const [studentList, setStudentList] = useState(students);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [studentList, setStudentList] = useState<Student[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
-  // Get unique batch names for the filter dropdown
-  const batchOptions = useMemo(() => {
-    const batches = [...new Set(studentList.map((student) => student.batch))];
-    return ["all", ...batches];
-  }, [studentList]);
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        setLoadingBatches(true);
+        const response = await fetchData("batch/list/", "POST", {});
+        console.log("Batch list response:", response);
+        if (response && response.status === 200 && response.batches) {
+          setBatches(response.batches);
+        } else {
+          console.error("Invalid response format:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+      } finally {
+        setLoadingBatches(false);
+      }
+    };
 
-  // Filter students based on search term and selected batch
+    fetchBatches();
+  }, []);
+
+  const fetchBatchStudents = async (batchId: string) => {
+    if (batchId === "all") {
+      setStudentList([]);
+      return;
+    }
+
+    try {
+      setLoadingStudents(true);
+      const response = await fetchData("batch/list_batch_students/", "POST", {
+        batch_id: parseInt(batchId),
+      });
+      console.log("Batch students response:", response);
+
+      if (response && response.students) {
+        setStudentList(response.students);
+      } else {
+        setStudentList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching batch students:", error);
+      setStudentList([]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  // Filter students based on search term
   const filteredStudents = useMemo(() => {
     return studentList.filter((student) => {
       const matchesSearch =
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.adminNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.admissionNo.toString().includes(searchTerm.toLowerCase()) ||
         student.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesBatch =
-        selectedBatch === "all" || student.batch === selectedBatch;
-
-      return matchesSearch && matchesBatch;
+      return matchesSearch;
     });
-  }, [searchTerm, selectedBatch, studentList]);
+  }, [searchTerm, studentList]);
 
   // View student details
-  const viewStudentDetails = (student) => {
+  const viewStudentDetails = (student: Student) => {
     setSelectedStudent(student);
     setIsDialogOpen(true);
-  };
-
-  // Remove student
-  const removeStudent = (studentId) => {
-    setStudentList((current) =>
-      current.filter((student) => student.id !== studentId)
-    );
   };
 
   // Handle batch selection
   const handleBatchChange = (value: string) => {
     setSelectedBatch(value);
+    fetchBatchStudents(value);
   };
 
   // Get batch color class
@@ -191,8 +174,6 @@ export default function StudentManagement() {
 
           {/* Main Content */}
           <main className="container mx-auto py-8 px-8">
-           
-
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#b8b8d4]" />
@@ -206,17 +187,15 @@ export default function StudentManagement() {
               <div className="w-full md:w-64">
                 <Select value={selectedBatch} onValueChange={handleBatchChange}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#1d1d2e] text-white">
-                    <SelectValue placeholder="All Batches" />
+                    <SelectValue placeholder="Choose a Batch" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#0A0A0A] border-[#0A0A0A] text-white">
-                    <SelectItem value="all">All Batches</SelectItem>
-                    {batchOptions
-                      .filter((batch) => batch !== "all")
-                      .map((batch) => (
-                        <SelectItem key={batch} value={batch}>
-                          {batch}
-                        </SelectItem>
-                      ))}
+                    <SelectItem value="all">Choose a Batch</SelectItem>
+                    {batches.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id.toString()}>
+                        {batch.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -250,10 +229,19 @@ export default function StudentManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredStudents.length > 0 ? (
-                    filteredStudents.map((student) => (
+                  {loadingStudents ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-[#b8b8d4]"
+                      >
+                        Loading students...
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredStudents.length > 0 ? (
+                    filteredStudents.map((student, index) => (
                       <TableRow
-                        key={student.id}
+                        key={student.admissionNo}
                         className="border-b border-[#2d2d4a] hover:bg-[#232442]"
                       >
                         <TableCell className="font-medium text-white">
@@ -263,15 +251,13 @@ export default function StudentManagement() {
                           {student.email}
                         </TableCell>
                         <TableCell className="text-[#b8b8d4]">
-                          {student.phone}
+                          {student.admissionNo}
                         </TableCell>
                         <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${getBatchColorClass(
-                              student.batch
-                            )}`}
-                          >
-                            {student.batch}
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-purple-700">
+                            {batches.find(
+                              (b) => b.id.toString() === selectedBatch
+                            )?.name || "Unknown"}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -289,8 +275,8 @@ export default function StudentManagement() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeStudent(student.id)}
                             className="bg-red-600 hover:bg-red-700 text-white"
+                            disabled
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             Remove
@@ -298,13 +284,22 @@ export default function StudentManagement() {
                         </TableCell>
                       </TableRow>
                     ))
+                  ) : selectedBatch === "all" ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-[#b8b8d4]"
+                      >
+                        Please select a batch to view students
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <TableRow>
                       <TableCell
                         colSpan={6}
                         className="text-center py-8 text-[#b8b8d4]"
                       >
-                        No students found
+                        No students found in this batch
                       </TableCell>
                     </TableRow>
                   )}
@@ -326,10 +321,10 @@ export default function StudentManagement() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <span className="font-medium text-[#b8b8d4]">
-                    Admin Number:
+                    Admission Number:
                   </span>
                   <span className="col-span-3 text-white">
-                    {selectedStudent.adminNumber}
+                    {selectedStudent.admissionNo}
                   </span>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -345,20 +340,11 @@ export default function StudentManagement() {
                   </span>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <span className="font-medium text-[#b8b8d4]">Phone:</span>
-                  <span className="col-span-3 text-white">
-                    {selectedStudent.phone}
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
                   <span className="font-medium text-[#b8b8d4]">Batch:</span>
                   <span className="col-span-3">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${getBatchColorClass(
-                        selectedStudent.batch
-                      )}`}
-                    >
-                      {selectedStudent.batch}
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-purple-700">
+                      {batches.find((b) => b.id.toString() === selectedBatch)
+                        ?.name || "Unknown"}
                     </span>
                   </span>
                 </div>

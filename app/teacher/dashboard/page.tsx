@@ -147,11 +147,6 @@ const Dashboard = () => {
   useEffect(() => {
     fetchBatches();
   }, []);
-  batch = batches.map((batch) => ({
-    label: batch.name,
-    value: batch.id,
-  }));
-
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">

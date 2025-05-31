@@ -86,7 +86,7 @@ const TeacherSignInPage = () => {
           <div className="loginbox w-[400px]  grid place-content-center h-fit">
             <div className="text-left">
               <h1 className="text-[48px]  text-white lg:text-[60px]  font-bold m-0 h-fit">
-                Login
+                Login!
               </h1>
               <p className="m-0 pb-1 font-poppins opacity-70 text-[16px]">
                 Enter your account details

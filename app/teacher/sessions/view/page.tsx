@@ -155,7 +155,7 @@ export default function CalendarPage() {
     const fetchBatches = async () => {
       try {
         setLoadingBatches(true);
-        const response = await fetchData("batch/list/", "POST", {});
+        const response = await fetchData("/batch/list/", "POST", {});
         console.log("Batch list response:", response);
         if (response && response.status === 200 && response.batches) {
           setBatches(response.batches);
@@ -180,7 +180,7 @@ export default function CalendarPage() {
 
     try {
       setLoadingSessions(true);
-      const response = await fetchData("batch/get_batch_sessions/", "POST", {
+      const response = await fetchData("/batch/get_batch_sessions/", "POST", {
         batch_id: parseInt(batchId),
       });
       console.log("Batch sessions response:", response);
@@ -334,7 +334,7 @@ export default function CalendarPage() {
         updateData.endDateTime = editFormData.endDateTime + "Z";
       }
 
-      const response = await fetchData("session/update/", "POST", updateData);
+      const response = await fetchData("/session/update/", "POST", updateData);
       console.log("Session updated:", response);
 
       if (response.error) {
@@ -367,14 +367,14 @@ export default function CalendarPage() {
     <div className="flex w-full dark">
       <SidebarPage />
       <div className="min-h-screen bg-[#181818] text-gray-100 p-4 w-full">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto max-w-7xl">
           {/* Header */}
 
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-                  <Calendar className="h-8 w-8" />
+                <h1 className="flex items-center gap-2 mb-2 text-3xl font-bold text-white">
+                  <Calendar className="w-8 h-8" />
                   Weekly Schedule
                 </h1>
                 <p className="text-gray-400">Manage your teaching sessions</p>
@@ -392,7 +392,7 @@ export default function CalendarPage() {
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                  <SelectContent className="text-white bg-gray-800 border-gray-700">
                     <SelectItem value="all">Choose a Batch</SelectItem>
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id.toString()}>
@@ -408,7 +408,7 @@ export default function CalendarPage() {
                   onClick={goToPreviousWeek}
                   className="dark"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="w-4 h-4" />
                   Previous
                 </Button>
 
@@ -423,7 +423,7 @@ export default function CalendarPage() {
                   className="dark"
                 >
                   Next
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -448,7 +448,7 @@ export default function CalendarPage() {
                       <div className="text-sm font-medium text-gray-400">
                         {weekdays[index]}
                       </div>
-                      <div className="text-lg font-semibold text-white mt-1">
+                      <div className="mt-1 text-lg font-semibold text-white">
                         {date.getDate()}
                       </div>
                     </div>
@@ -463,9 +463,9 @@ export default function CalendarPage() {
                   {timeSlots.map((time, index) => (
                     <div
                       key={time}
-                      className="h-20 border-b border-gray-800 p-2 flex items-start bg-gray-800/30"
+                      className="flex items-start h-20 p-2 border-b border-gray-800 bg-gray-800/30"
                     >
-                      <span className="text-xs text-gray-500 font-medium">
+                      <span className="text-xs font-medium text-gray-500">
                         {time}
                       </span>
                     </div>
@@ -476,13 +476,13 @@ export default function CalendarPage() {
                 {weekDates.map((date, dayIndex) => (
                   <div
                     key={dayIndex}
-                    className="border-r border-gray-800 last:border-r-0 relative"
+                    className="relative border-r border-gray-800 last:border-r-0"
                   >
                     {/* Time slot backgrounds */}
                     {timeSlots.map((time, timeIndex) => (
                       <div
                         key={time}
-                        className="h-20 border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
+                        className="h-20 transition-colors border-b border-gray-800 hover:bg-gray-800/30"
                       />
                     ))}
 
@@ -496,14 +496,14 @@ export default function CalendarPage() {
                         return (
                           <div
                             key={session.id}
-                            className="absolute left-1 right-1 pointer-events-auto"
+                            className="absolute pointer-events-auto left-1 right-1"
                             style={{
                               top: `${position.top}px`,
                               height: `${position.height}px`,
                             }}
                           >
                             <div
-                              className="h-full bg-blue-600 rounded-md p-2 border border-blue-500 shadow-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                              className="h-full p-2 transition-colors bg-blue-600 border border-blue-500 rounded-md shadow-lg cursor-pointer hover:bg-blue-700"
                               onClick={() =>
                                 handleSessionClick({
                                   ...session,
@@ -515,13 +515,13 @@ export default function CalendarPage() {
                               <div className="text-xs font-semibold text-white truncate">
                                 {session.sessionName}
                               </div>
-                              <div className="text-xs text-blue-200 mt-1 flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
+                              <div className="flex items-center gap-1 mt-1 text-xs text-blue-200">
+                                <Clock className="w-3 h-3" />
                                 {formatTime(session.startDateTime)} -{" "}
                                 {formatTime(session.endDateTime)}
                               </div>
-                              <div className="text-xs text-blue-300 mt-1 flex items-center gap-1">
-                                <Users className="h-3 w-3" />
+                              <div className="flex items-center gap-1 mt-1 text-xs text-blue-300">
+                                <Users className="w-3 h-3" />
                                 {session.batch_name}
                               </div>
                               {session.createdBy && (
@@ -541,13 +541,13 @@ export default function CalendarPage() {
           </Card>
 
           {/* Legend */}
-          <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
+          <div className="flex items-center gap-4 mt-4 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-blue-600 rounded"></div>
               <span>Scheduled Session</span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+              <Clock className="w-4 h-4" />
               <span>Time slots: 8:00 AM - 3:00 PM</span>
             </div>
           </div>
@@ -559,7 +559,7 @@ export default function CalendarPage() {
         open={!!editingSession}
         onOpenChange={() => setEditingSession(null)}
       >
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+        <DialogContent className="max-w-md text-white bg-gray-900 border-gray-800">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               Edit Session
@@ -580,9 +580,9 @@ export default function CalendarPage() {
                   }`}
                 >
                   {updateMessage.type === "success" ? (
-                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <CheckCircle className="w-4 h-4 text-green-400" />
                   ) : (
-                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <AlertCircle className="w-4 h-4 text-red-400" />
                   )}
                   <AlertDescription
                     className={
@@ -606,7 +606,7 @@ export default function CalendarPage() {
                   onChange={(e) =>
                     handleEditFormChange("sessionName", e.target.value)
                   }
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="text-white bg-gray-800 border-gray-700"
                 />
               </div>
 
@@ -620,10 +620,10 @@ export default function CalendarPage() {
                     handleEditFormChange("batch_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="text-white bg-gray-800 border-gray-700">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                  <SelectContent className="text-white bg-gray-800 border-gray-700">
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id.toString()}>
                         {batch.name}
@@ -645,7 +645,7 @@ export default function CalendarPage() {
                     onChange={(e) =>
                       handleEditFormChange("startDateTime", e.target.value)
                     }
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="text-white bg-gray-800 border-gray-700"
                   />
                 </div>
 
@@ -660,7 +660,7 @@ export default function CalendarPage() {
                     onChange={(e) =>
                       handleEditFormChange("endDateTime", e.target.value)
                     }
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="text-white bg-gray-800 border-gray-700"
                   />
                 </div>
               </div>

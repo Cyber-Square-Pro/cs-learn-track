@@ -55,7 +55,7 @@ export default function CreateSessionPage() {
     const fetchBatches = async () => {
       try {
         setLoadingBatches(true);
-        const response = await fetchData("batch/list/", "POST", {});
+        const response = await fetchData("/batch/list/", "POST", {});
         console.log("Batch list response:", response);
         if (response && response.status === 200 && response.batches) {
           setBatches(response.batches);
@@ -161,7 +161,7 @@ export default function CreateSessionPage() {
 
       // Send API request to create session
       const response = await fetchData(
-        "batch/create_session/",
+        "/batch/create_session/",
         "POST",
         sessionData
       );
@@ -189,10 +189,10 @@ export default function CreateSessionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 p-4">
+    <div className="min-h-screen p-4 text-gray-100 bg-gray-950">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="mb-2 text-3xl font-bold text-white">
             Create New Session
           </h1>
           <p className="text-gray-400">
@@ -201,8 +201,8 @@ export default function CreateSessionPage() {
         </div>
 
         {submitSuccess && (
-          <Alert className="mb-6 border-green-600 bg-green-950/50 text-green-400">
-            <CalendarDays className="h-4 w-4" />
+          <Alert className="mb-6 text-green-400 border-green-600 bg-green-950/50">
+            <CalendarDays className="w-4 h-4" />
             <AlertDescription>
               Session created successfully! Students will be notified about the
               new session.
@@ -219,12 +219,12 @@ export default function CreateSessionPage() {
                 onClick={() => router.push("/teacher/dashboard/")}
                 className="text-gray-400 hover:text-white hover:bg-gray-800"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="w-4 h-4" />
                 
               </Button>
               <div className="flex-1">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <BookOpen className="w-5 h-5" />
                   Session Details
                 </CardTitle>
                 <CardDescription className="text-gray-400">
@@ -247,19 +247,19 @@ export default function CreateSessionPage() {
                   onChange={(e) =>
                     handleInputChange("sessionName", e.target.value)
                   }
-                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500"
+                  className="text-white bg-gray-800 border-gray-700 placeholder:text-gray-500 focus:border-blue-500"
                 />
                 {errors.sessionName && (
-                  <p className="text-red-400 text-sm">{errors.sessionName}</p>
+                  <p className="text-sm text-red-400">{errors.sessionName}</p>
                 )}
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="batch_id"
-                  className="text-gray-200 flex items-center gap-2"
+                  className="flex items-center gap-2 text-gray-200"
                 >
-                  <Users className="h-4 w-4" />
+                  <Users className="w-4 h-4" />
                   Batch *
                 </Label>
                 <Select
@@ -268,14 +268,14 @@ export default function CreateSessionPage() {
                     handleInputChange("batch_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:border-blue-500">
+                  <SelectTrigger className="text-white bg-gray-800 border-gray-700 focus:border-blue-500">
                     <SelectValue
                       placeholder={
                         loadingBatches ? "Loading batches..." : "Select batch"
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                  <SelectContent className="text-white bg-gray-800 border-gray-700">
                     {batches.map((batch) => (
                       <SelectItem key={batch.id} value={batch.id.toString()}>
                         {batch.name}
@@ -284,17 +284,17 @@ export default function CreateSessionPage() {
                   </SelectContent>
                 </Select>
                 {errors.batch_id && (
-                  <p className="text-red-400 text-sm">{errors.batch_id}</p>
+                  <p className="text-sm text-red-400">{errors.batch_id}</p>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label
                     htmlFor="date"
-                    className="text-gray-200 flex items-center gap-2"
+                    className="flex items-center gap-2 text-gray-200"
                   >
-                    <CalendarDays className="h-4 w-4" />
+                    <CalendarDays className="w-4 h-4" />
                     Date *
                   </Label>
                   <Input
@@ -302,19 +302,19 @@ export default function CreateSessionPage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => handleInputChange("date", e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-white focus:border-blue-500"
+                    className="text-white bg-gray-800 border-gray-700 focus:border-blue-500"
                   />
                   {errors.date && (
-                    <p className="text-red-400 text-sm">{errors.date}</p>
+                    <p className="text-sm text-red-400">{errors.date}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="period"
-                    className="text-gray-200 flex items-center gap-2"
+                    className="flex items-center gap-2 text-gray-200"
                   >
-                    <Clock className="h-4 w-4" />
+                    <Clock className="w-4 h-4" />
                     Period *
                   </Label>
                   <Select
@@ -323,10 +323,10 @@ export default function CreateSessionPage() {
                       handleInputChange("period", value)
                     }
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:border-blue-500">
+                    <SelectTrigger className="text-white bg-gray-800 border-gray-700 focus:border-blue-500">
                       <SelectValue placeholder="Select period" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    <SelectContent className="text-white bg-gray-800 border-gray-700">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((period) => (
                         <SelectItem key={period} value={period.toString()}>
                           Period {period}
@@ -335,7 +335,7 @@ export default function CreateSessionPage() {
                     </SelectContent>
                   </Select>
                   {errors.period && (
-                    <p className="text-red-400 text-sm">{errors.period}</p>
+                    <p className="text-sm text-red-400">{errors.period}</p>
                   )}
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function CreateSessionPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 text-white bg-blue-600 hover:bg-blue-700"
                 >
                   {isSubmitting ? "Creating Session..." : "Create Session"}
                 </Button>
@@ -361,7 +361,7 @@ export default function CreateSessionPage() {
                     setErrors({});
                     setSubmitSuccess(false);
                   }}
-                  className="border-gray-700 text-gray-300 hover:bg-gray-800 dark"
+                  className="text-gray-300 border-gray-700 hover:bg-gray-800 dark"
                 >
                   Clear
                 </Button>
@@ -370,7 +370,7 @@ export default function CreateSessionPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 text-center text-gray-500 text-sm">
+        <div className="mt-6 text-sm text-center text-gray-500">
           <p>All fields marked with * are required</p>
         </div>
       </div>

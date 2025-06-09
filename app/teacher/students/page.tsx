@@ -53,7 +53,6 @@ interface BatchStudentsResponse {
   students: Student[];
 }
 
-
 export default function StudentManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -68,7 +67,7 @@ export default function StudentManagement() {
     const fetchBatches = async () => {
       try {
         setLoadingBatches(true);
-        const response = await fetchData("batch/list/", "POST", {});
+        const response = await fetchData("/batch/list/", "POST", {});
         console.log("Batch list response:", response);
         if (response && response.status === 200 && response.batches) {
           setBatches(response.batches);
@@ -93,7 +92,7 @@ export default function StudentManagement() {
 
     try {
       setLoadingStudents(true);
-      const response = await fetchData("batch/list_batch_students/", "POST", {
+      const response = await fetchData("/batch/list_batch_students/", "POST", {
         batch_id: parseInt(batchId),
       });
       console.log("Batch students response:", response);
@@ -101,6 +100,7 @@ export default function StudentManagement() {
       if (response && response.students) {
         setStudentList(response.students);
       } else {
+        console.error("Invalid response format:", response);
         setStudentList([]);
       }
     } catch (error) {
@@ -151,9 +151,9 @@ export default function StudentManagement() {
         {/* Header */}
         <div className="block w-full">
           <header className="bg-[#181818] py-4 px-8">
-            <div className="container mx-auto flex justify-between items-center">
+            <div className="container flex items-center justify-between mx-auto">
               <div className="flex items-center">
-                <GraduationCap className="text-white h-8 w-8 mr-3" />
+                <GraduationCap className="w-8 h-8 mr-3 text-white" />
                 <div>
                   <h1 className="text-2xl font-bold text-white">
                     Student Manager
@@ -173,8 +173,8 @@ export default function StudentManagement() {
           </header>
 
           {/* Main Content */}
-          <main className="container mx-auto py-8 px-8">
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <main className="container px-8 py-8 mx-auto">
+            <div className="flex flex-col gap-4 mb-6 md:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#b8b8d4]" />
                 <Input
@@ -217,7 +217,7 @@ export default function StudentManagement() {
                     <TableHead className="text-[#b8b8d4] font-medium">
                       <div className="flex items-center">
                         BATCH
-                        <ChevronDown className="ml-1 h-4 w-4" />
+                        <ChevronDown className="w-4 h-4 ml-1" />
                       </div>
                     </TableHead>
                     <TableHead className="text-[#b8b8d4] font-medium">
@@ -254,7 +254,7 @@ export default function StudentManagement() {
                           {student.admissionNo}
                         </TableCell>
                         <TableCell>
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-purple-700">
+                          <span className="px-2 py-1 text-xs font-medium bg-purple-700 rounded">
                             {batches.find(
                               (b) => b.id.toString() === selectedBatch
                             )?.name || "Unknown"}
@@ -267,7 +267,7 @@ export default function StudentManagement() {
                             onClick={() => viewStudentDetails(student)}
                             className="text-[#8a85ff] hover:text-[#a5a1ff] hover:bg-[#2d2d4a]"
                           >
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="w-4 h-4 mr-1" />
                             View Details
                           </Button>
                         </TableCell>
@@ -275,10 +275,10 @@ export default function StudentManagement() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="text-white bg-red-600 hover:bg-red-700"
                             disabled
                           >
-                            <Trash2 className="h-4 w-4 mr-1" />
+                            <Trash2 className="w-4 h-4 mr-1" />
                             Remove
                           </Button>
                         </TableCell>
@@ -319,7 +319,7 @@ export default function StudentManagement() {
             </DialogHeader>
             {selectedStudent && (
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid items-center grid-cols-4 gap-4">
                   <span className="font-medium text-[#b8b8d4]">
                     Admission Number:
                   </span>
@@ -327,22 +327,22 @@ export default function StudentManagement() {
                     {selectedStudent.admissionNo}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid items-center grid-cols-4 gap-4">
                   <span className="font-medium text-[#b8b8d4]">Name:</span>
                   <span className="col-span-3 text-white">
                     {selectedStudent.name}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid items-center grid-cols-4 gap-4">
                   <span className="font-medium text-[#b8b8d4]">Email:</span>
                   <span className="col-span-3 text-white">
                     {selectedStudent.email}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid items-center grid-cols-4 gap-4">
                   <span className="font-medium text-[#b8b8d4]">Batch:</span>
                   <span className="col-span-3">
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-purple-700">
+                    <span className="px-2 py-1 text-xs font-medium bg-purple-700 rounded">
                       {batches.find((b) => b.id.toString() === selectedBatch)
                         ?.name || "Unknown"}
                     </span>

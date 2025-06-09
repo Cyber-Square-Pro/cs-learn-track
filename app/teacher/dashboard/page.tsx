@@ -140,13 +140,19 @@ const Dashboard = () => {
     });
   }, [dashboardData]);
   const fetchBatches = async () => {
-    const response = await fetchData("/batch/list/", "POST", null, false);
+    const userData = JSON.parse(localStorage.userData);
+    const response = await fetchData("/batch/list/", "POST", null, false,userData.accessToken);
     setBatches(response.batches);
     const responseBatches = response.batches;
   };
   useEffect(() => {
     fetchBatches();
   }, []);
+  batch = batches.map((batch) => ({
+    label: batch.name,
+    value: batch.id,
+  }));
+
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">

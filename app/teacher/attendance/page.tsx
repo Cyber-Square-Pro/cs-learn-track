@@ -73,7 +73,7 @@ export default function AttendancePage() {
     const fetchBatches = async () => {
       try {
         setLoadingBatches(true);
-        const response = await fetchData("batch/list/", "POST", {});
+        const response = await fetchData("/batch/list/", "POST", {});
         console.log("Batch list response:", response);
         if (response && response.status === 200 && response.batches) {
           setBatches(response.batches);
@@ -97,7 +97,7 @@ export default function AttendancePage() {
     }
 
     try {
-      const response = await fetchData("batch/get_batch_sessions/", "POST", {
+      const response = await fetchData("/batch/get_batch_sessions/", "POST", {
         batch_id: parseInt(batchId),
       });
       console.log("Batch sessions response:", response);
@@ -121,7 +121,7 @@ export default function AttendancePage() {
 
     try {
       setLoadingStudents(true);
-      const response = await fetchData("batch/list_batch_students/", "POST", {
+      const response = await fetchData("/batch/list_batch_students/", "POST", {
         batch_id: parseInt(batchId),
       });
       console.log("Batch students response:", response);
@@ -258,16 +258,16 @@ export default function AttendancePage() {
       <div className="min-h-screen bg-[#181818] text-gray-100 p-4 w-full">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
-              <Users className="h-8 w-8" />
+            <h1 className="flex items-center gap-2 mb-2 text-3xl font-bold text-white">
+              <Users className="w-8 h-8" />
               Attendance Management
             </h1>
             <p className="text-gray-400">Mark attendance for your students</p>
           </div>
 
           {saveSuccess && (
-            <Alert className="mb-6 border-green-600 bg-green-950/50 text-green-400">
-              <CheckCircle className="h-4 w-4" />
+            <Alert className="mb-6 text-green-400 border-green-600 bg-green-950/50">
+              <CheckCircle className="w-4 h-4" />
               <AlertDescription>
                 Attendance marked successfully for {attendanceStats.total}{" "}
                 students!
@@ -276,8 +276,8 @@ export default function AttendancePage() {
           )}
 
           {saveError && (
-            <Alert className="mb-6 border-red-600 bg-red-950/50 text-red-400">
-              <XCircle className="h-4 w-4" />
+            <Alert className="mb-6 text-red-400 border-red-600 bg-red-950/50">
+              <XCircle className="w-4 h-4" />
               <AlertDescription>{saveError}</AlertDescription>
             </Alert>
           )}
@@ -285,8 +285,8 @@ export default function AttendancePage() {
           {/* Batch and Session Selection */}
           <Card className="bg-[#0A0A0A] border-gray-800 mb-6">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Calendar className="w-5 h-5" />
                 Select Batch & Session
               </CardTitle>
               <CardDescription className="text-gray-400">
@@ -295,7 +295,7 @@ export default function AttendancePage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-300 mb-2 block">
+                <label className="block mb-2 text-sm font-medium text-gray-300">
                   Select Batch
                 </label>
                 <Select
@@ -321,7 +321,7 @@ export default function AttendancePage() {
 
               {selectedBatchId && (
                 <div>
-                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                  <label className="block mb-2 text-sm font-medium text-gray-300">
                     Select Session
                   </label>
                   <Select
@@ -373,10 +373,10 @@ export default function AttendancePage() {
                       <CardTitle className="text-white">
                         {selectedSession.sessionName}
                       </CardTitle>
-                      <CardDescription className="text-gray-400 mt-2">
+                      <CardDescription className="mt-2 text-gray-400">
                         <div className="flex items-center gap-4">
                           <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
+                            <Users className="w-4 h-4" />
                             {
                               batches.find(
                                 (b) => b.id.toString() === selectedBatchId
@@ -384,7 +384,7 @@ export default function AttendancePage() {
                             }
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
+                            <Clock className="w-4 h-4" />
                             {
                               formatDateTime(selectedSession.startDateTime).date
                             }{" "}
@@ -398,19 +398,19 @@ export default function AttendancePage() {
                     <div className="flex gap-2">
                       <Badge
                         variant="outline"
-                        className="border-green-600 text-green-400"
+                        className="text-green-400 border-green-600"
                       >
                         Present: {attendanceStats.present}
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="border-red-600 text-red-400"
+                        className="text-red-400 border-red-600"
                       >
                         Absent: {attendanceStats.absent}
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="border-blue-600 text-blue-400"
+                        className="text-blue-400 border-blue-600"
                       >
                         Total: {attendanceStats.total}
                       </Badge>
@@ -431,7 +431,7 @@ export default function AttendancePage() {
                         variant="outline"
                         size="sm"
                         onClick={handleSelectAll}
-                        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                        className="text-gray-300 border-gray-700 hover:bg-gray-800"
                       >
                         Mark All Present
                       </Button>
@@ -439,9 +439,9 @@ export default function AttendancePage() {
                         variant="outline"
                         size="sm"
                         onClick={handleClearAll}
-                        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                        className="text-gray-300 border-gray-700 hover:bg-gray-800"
                       >
-                        <RotateCcw className="h-4 w-4 mr-1" />
+                        <RotateCcw className="w-4 h-4 mr-1" />
                         Clear All
                       </Button>
                     </div>
@@ -449,7 +449,7 @@ export default function AttendancePage() {
                 </CardHeader>
                 <CardContent>
                   {loadingStudents ? (
-                    <div className="text-center py-8">
+                    <div className="py-8 text-center">
                       <div className="text-gray-400">Loading students...</div>
                     </div>
                   ) : (
@@ -457,7 +457,7 @@ export default function AttendancePage() {
                       {batchStudents.map((student) => (
                         <div
                           key={student.admissionNo}
-                          className="flex items-center justify-between p-4 bg-gray-800 rounded-lg border border-gray-700"
+                          className="flex items-center justify-between p-4 bg-gray-800 border border-gray-700 rounded-lg"
                         >
                           <div className="flex items-center space-x-4">
                             <Checkbox
@@ -482,19 +482,19 @@ export default function AttendancePage() {
                           </div>
                           <div className="flex items-center">
                             {attendance[student.admissionNo] === true ? (
-                              <Badge className="bg-green-600 text-white">
-                                <CheckCircle className="h-3 w-3 mr-1" />
+                              <Badge className="text-white bg-green-600">
+                                <CheckCircle className="w-3 h-3 mr-1" />
                                 Present
                               </Badge>
                             ) : attendance[student.admissionNo] === false ? (
                               <Badge variant="destructive">
-                                <XCircle className="h-3 w-3 mr-1" />
+                                <XCircle className="w-3 h-3 mr-1" />
                                 Absent
                               </Badge>
                             ) : (
                               <Badge
                                 variant="outline"
-                                className="border-gray-600 text-gray-400"
+                                className="text-gray-400 border-gray-600"
                               >
                                 Not Marked
                               </Badge>
@@ -506,21 +506,21 @@ export default function AttendancePage() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4 mt-6 pt-6 border-t border-gray-800">
+                  <div className="flex gap-4 pt-6 mt-6 border-t border-gray-800">
                     <Button
                       onClick={handleSave}
                       disabled={isSaving || loadingStudents}
                       className="flex-1 bg-blue-600 hover:bg-blue-700"
                     >
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="w-4 h-4 mr-2" />
                       {isSaving ? "Saving..." : "Save Attendance"}
                     </Button>
                     <Button
                       variant="outline"
                       onClick={handleClearAll}
-                      className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                      className="text-gray-300 border-gray-700 hover:bg-gray-800"
                     >
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                      <RotateCcw className="w-4 h-4 mr-2" />
                       Clear
                     </Button>
                   </div>
@@ -534,9 +534,9 @@ export default function AttendancePage() {
             batchStudents.length === 0 &&
             !loadingStudents && (
               <Card className="bg-[#0A0A0A] border-gray-800">
-                <CardContent className="text-center py-12">
-                  <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-400 mb-2">
+                <CardContent className="py-12 text-center">
+                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                  <h3 className="mb-2 text-lg font-medium text-gray-400">
                     No Students Found
                   </h3>
                   <p className="text-gray-500">
@@ -548,9 +548,9 @@ export default function AttendancePage() {
 
           {!selectedSession && selectedBatchId === "" && (
             <Card className="bg-[#0A0A0A] border-gray-800">
-              <CardContent className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-400 mb-2">
+              <CardContent className="py-12 text-center">
+                <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                <h3 className="mb-2 text-lg font-medium text-gray-400">
                   No Batch Selected
                 </h3>
                 <p className="text-gray-500">
@@ -562,9 +562,9 @@ export default function AttendancePage() {
 
           {selectedBatchId && !selectedSessionId && (
             <Card className="bg-[#0A0A0A] border-gray-800">
-              <CardContent className="text-center py-12">
-                <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-400 mb-2">
+              <CardContent className="py-12 text-center">
+                <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                <h3 className="mb-2 text-lg font-medium text-gray-400">
                   No Session Selected
                 </h3>
                 <p className="text-gray-500">

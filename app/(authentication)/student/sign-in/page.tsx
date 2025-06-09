@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-// import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +29,10 @@ const poppins = Poppins({
 });
 
 const SignInPage = () => {
+  const router = useRouter();
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const UserSchema = z.object({
     admissionNo: z.string({ required_error: "" }).min(4),
     studentPassword: z.string({ required_error: "" }).min(6).max(100),
@@ -40,27 +44,45 @@ const SignInPage = () => {
     formState: { errors },
   } = useForm<formFields>({ resolver: zodResolver(UserSchema) });
 
-
   const onSubmit: SubmitHandler<formFields> = async (data) => {
+    setIsLoading(true);
+    setLoginError(null);
+
     try {
       const postData = {
         admissionNo: parseInt(data.admissionNo),
         studentPassword: data.studentPassword,
       };
       const response = await fetchData("/student/login/", "POST", postData);
+
       if (response.status === 200) {
         const userData = {
           userType: "student",
           accessToken: response.access,
         };
         setLoginError(null);
+
+        // Store JWT token in cookie
+        Cookies.set("accessToken", response.access, { expires: 7 }); // Expires in 7 days
+
         sessionStorage.setItem("userData", JSON.stringify(userData));
-        // navigate("/");
-      } else if (response.status === 400) {
-        setLoginError("Invalid Admission Number or Password");
+
+        // Redirect to student dashboard
+        router.push("/student/dashboard");
+      } else if (response.status === 400 || response.status === 401) {
+        setLoginError(
+          "Incorrect admission number or password. Please try again."
+        );
+      } else {
+        setLoginError("Login failed. Please try again later.");
       }
     } catch (error) {
-      console.error("Error loggin:", error);
+      console.error("Error logging in:", error);
+      setLoginError(
+        "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,6 +108,7 @@ const SignInPage = () => {
                   type="text"
                   className="w-[23rem] text-[16px]"
                   {...register("admissionNo", { required: true })}
+                  disabled={isLoading}
                 />
                 <p className="text-red-500 emailError">
                   {errors.admissionNo?.message}
@@ -98,6 +121,7 @@ const SignInPage = () => {
                   type="password"
                   className="w-[23rem] text-[16px]"
                   {...register("studentPassword", { required: true })}
+                  disabled={isLoading}
                 />
                 <p className="text-red-500 passwordError">
                   {errors.studentPassword?.message}
@@ -113,16 +137,21 @@ const SignInPage = () => {
                 </a>
               </div>
               {loginError && (
-                <p className="text-left text-red-500">{loginError}</p>
+                <div className="mt-3">
+                  <p className="p-3 text-sm text-left text-red-500 bg-red-100 border border-red-500 rounded-md bg-opacity-10 border-opacity-30">
+                    {loginError}
+                  </p>
+                </div>
               )}
               <div className="grid  width-[100%]">
                 <br />
                 <br />
                 <button
                   type="submit"
-                  className="bg-[#925FE2] h-fit py-[10px] w-[23rem] rounded-md text-white font-poppins font-bold text-[16px]"
+                  disabled={isLoading}
+                  className="bg-[#925FE2] h-fit py-[10px] w-[23rem] rounded-md text-white font-poppins font-bold text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
-                  Login
+                  {isLoading ? "Logging in..." : "Login"}
                 </button>
               </div>
             </form>

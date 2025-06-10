@@ -58,9 +58,19 @@ const attendanceData = [
 
 interface DashboardData {
   total_students: number;
-  active_teachers: number;
-  recent_students_details: any[];
-  // Add other properties as needed
+  active_students: number;
+  recent_students_details: {
+    admissionNo: number;
+    studentName: string;
+    batch: string;
+    email: string;
+    active: boolean;
+  }[];
+  attendance_data: {
+    date: string;
+    percentage: number;
+  }[];
+  status: number;
 }
 
 const Dashboard = () => {
@@ -119,34 +129,41 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
   console.log(dashboardData);
-  useEffect(() => {
-    // console.log("Active");
-    const statusBox = document.querySelectorAll(".status-div");
-    statusBox.forEach((box) => {
-      console.log(box.textContent);
-      if (box.textContent === "Active") {
-        box.classList.remove("text-red-700");
-        box.classList.remove("bg-red-100");
-        box.classList.add("text-green-700");
-        box.classList.add("bg-green-100");
-        (box as HTMLElement).style.padding = "0.25rem 0.76rem";
-      } else if (box.textContent === "Inactive") {
-        (box as HTMLElement).style.padding = "0.25rem 0.5rem";
-        box.classList.remove("text-green-700");
-        box.classList.remove("bg-green-100");
-        box.classList.add("text-red-700");
-        box.classList.add("bg-red-100");
-      }
-    });
-  }, [dashboardData]);
+
   const fetchBatches = async () => {
-    const response = await fetchData("/batch/list/", "POST", null, false);
-    setBatches(response.batches);
-    const responseBatches = response.batches;
+    if (typeof window !== "undefined") {
+      const userDataString = localStorage.getItem("userData");
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        const response = await fetchData(
+          "/batch/list/",
+          "POST",
+          null,
+          false,
+          userData.accessToken
+        );
+        setBatches(response.batches);
+      }
+    }
   };
   useEffect(() => {
     fetchBatches();
   }, []);
+  batch = batches.map((batch) => ({
+    label: batch.name,
+    value: batch.id,
+  }));
+
+  // Calculate average attendance percentage
+  const averageAttendance = dashboardData?.attendance_data?.length
+    ? Math.round(
+        dashboardData.attendance_data.reduce(
+          (sum, item) => sum + item.percentage,
+          0
+        ) / dashboardData.attendance_data.length
+      )
+    : 0;
+
   return (
     <div className="min-h-screen bg-[#181818] dark ">
       <div className="flex">
@@ -202,9 +219,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {dashboardData && dashboardData.active_teachers
-                    ? dashboardData.active_teachers
-                    : "0"}
+                  {dashboardData ? dashboardData.active_students : "0"}
                 </div>
               </CardContent>
             </Card>
@@ -225,7 +240,7 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">92%</div>
+                <div className="text-2xl font-bold">{averageAttendance}%</div>
               </CardContent>
             </Card>
           </div>
@@ -238,7 +253,14 @@ const Dashboard = () => {
             <CardContent>
               <ChartContainer className="h-[200px]">
                 <LineChart
-                  data={attendanceData}
+                  data={
+                    dashboardData?.attendance_data?.map((item) => ({
+                      day: new Date(
+                        item.date.split("-").reverse().join("-")
+                      ).toLocaleDateString("en-US", { weekday: "short" }),
+                      value: item.percentage,
+                    })) || attendanceData
+                  }
                   margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
                 >
                   <XAxis dataKey="day" stroke="#9CA3AF" />
@@ -275,39 +297,29 @@ const Dashboard = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {dashboardData?.recent_students_details.length === 0 ? (
+                      {!dashboardData?.recent_students_details ||
+                      dashboardData.recent_students_details.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center">
                             No recent students found.
                           </TableCell>
                         </TableRow>
                       ) : (
-                        <>
-                          <TableRow>
+                        dashboardData.recent_students_details.map((student) => (
+                          <TableRow key={student.admissionNo}>
+                            <TableCell>{student.studentName}</TableCell>
+                            <TableCell>{student.admissionNo}</TableCell>
+                            <TableCell>{student.batch}</TableCell>
+                            <TableCell>{student.email}</TableCell>
                             <TableCell>
-                              {
-                                dashboardData?.recent_students_details[0]
-                                  ?.studentName
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {
-                                dashboardData?.recent_students_details[0]
-                                  ?.admissionNo
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[0]?.batch}
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[0]?.email}
-                            </TableCell>
-                            <TableCell>
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                                {dashboardData?.recent_students_details[0]
-                                  ?.active
-                                  ? "Active"
-                                  : "Inactive"}
+                              <span
+                                className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${
+                                  student.active
+                                    ? "bg-green-100 text-green-800 border border-green-200"
+                                    : "bg-red-100 text-red-800 border border-red-200"
+                                }`}
+                              >
+                                {student.active ? "Active" : "Inactive"}
                               </span>
                             </TableCell>
                             <TableCell>
@@ -316,73 +328,7 @@ const Dashboard = () => {
                               </Button>
                             </TableCell>
                           </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              {
-                                dashboardData?.recent_students_details[1]
-                                  ?.studentName
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {
-                                dashboardData?.recent_students_details[1]
-                                  ?.admissionNo
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[1]?.batch}
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[1]?.email}
-                            </TableCell>
-                            <TableCell>
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                                {dashboardData?.recent_students_details[1]
-                                  ?.active
-                                  ? "Active"
-                                  : "Inactive"}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm">
-                                View Details
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>
-                              {
-                                dashboardData?.recent_students_details[2]
-                                  ?.studentName
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {
-                                dashboardData?.recent_students_details[2]
-                                  ?.admissionNo
-                              }
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[2]?.batch}
-                            </TableCell>
-                            <TableCell>
-                              {dashboardData?.recent_students_details[2]?.email}
-                            </TableCell>
-                            <TableCell>
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full status-div">
-                                {dashboardData?.recent_students_details[2]
-                                  ?.active
-                                  ? "Active"
-                                  : "Inactive"}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm">
-                                View Details
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        </>
+                        ))
                       )}
                     </TableBody>
                   </Table>

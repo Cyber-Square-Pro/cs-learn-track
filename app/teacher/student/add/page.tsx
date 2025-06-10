@@ -72,24 +72,50 @@ const formSchema = z.object({
 
 const AddStudentPage = () => {
   const [date, setDate] = React.useState<Date>();
-  const [batches, setBatches] = useState<{ name: string,id:any }[]>([]);
+  const [batches, setBatches] = useState<{ name: string; id: any }[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
   const router = useRouter();
-  const handleDateChange = (selectedDate:any) => {
+  const handleDateChange = (selectedDate: any) => {
     if (selectedDate) {
       const formattedDate = selectedDate.toISOString().slice(0, 10); // Format to yyyy-mm-dd
       setDate(formattedDate);
     }
   };
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    if (date) {
-      values.joinedDate = date;
+
+    const studentName = values.firstName + " " + values.secondName;
+    const formData = new FormData();
+
+    // Append all student data to FormData
+    formData.append("studentName", studentName);
+    formData.append("fatherName", values.secondName);
+    formData.append("studentClass", values.grade);
+    formData.append("division", values.section);
+    formData.append("email", values.email);
+    formData.append("contactNo", values.phone);
+    formData.append("gender", values.gender);
+    formData.append("studentPassword", values.password);
+    formData.append("batch", values.batch.toString());
+    formData.append("joinedDate", values.joinedDate.toISOString().slice(0, 10));
+
+    const userData = JSON.parse(localStorage.userData);
+
+    try {
+      const response = await fetchData(
+        "/student/register/",
+        "POST",
+        formData,
+        true, // isFormData set to true
+        userData.accessToken
+      );
+      console.log("Response from backend:", response);
+      router.push("/teacher/dashboard");
+    } catch (error) {
+      console.error("Error registering student:", error);
     }
-    sessionStorage.setItem("studentData", JSON.stringify(values));
-    router.push("/teacher/student/image/upload");
   }
   const fetchBatches = async () => {
     const userData = JSON.parse(localStorage.userData);
@@ -454,7 +480,7 @@ const AddStudentPage = () => {
                   type="submit"
                   className="bg-white text-[#0c0c0c] hover:bg-[#0c0c0c] hover:text-white font-[18px]"
                 >
-                  Next
+                  Register Student
                 </Button>
               </div>
             </form>
@@ -463,13 +489,8 @@ const AddStudentPage = () => {
 
         <div className="flex justify-center w-full h-auto row-span-1 stepper">
           <div className="progress relative  w-[18%] h-full flex justify-around">
-            <div className=" relative z-10 grid w-10 h-10 font-bold text-white  bg-[#222225] rounded-full place-items-center -translate-x-[100%]">
+            <div className=" relative z-10 grid w-10 h-10 font-bold text-white  bg-[#222225] rounded-full place-items-center">
               1
-            </div>
-            <div className="absolute w-full h-1 grid top-[40%] lg:w-[90%] bg-gray-300"></div>
-            <div className="absolute w-[0%] h-1 grid top-[40%]   bg-[#222225]"></div>
-            <div className="relative z-10 grid w-10 h-10 font-bold text-gray-900  bg-gray-300 rounded-full place-items-center translate-x-[100%]">
-              2
             </div>
           </div>
         </div>

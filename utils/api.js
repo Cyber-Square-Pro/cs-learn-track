@@ -16,6 +16,7 @@ const fetchData = async (
     );
   }
 
+  // Ensure proper URL concatenation
   const url = `${API_BASE_URL}${endpoint}`;
 
   // Get token from cookie if not provided

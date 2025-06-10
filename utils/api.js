@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-// Remove the incorrect zod import
+
 const API_BASE_URL = "http://api.learn-track.pro.cybersquare.org";
 
 const fetchData = async (

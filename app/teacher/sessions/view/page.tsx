@@ -435,7 +435,7 @@ export default function CalendarPage() {
               <div className="grid grid-cols-6 border-b border-gray-800">
                 {/* Time column header */}
                 <div className="p-4 border-r border-gray-800 bg-gray-800/50">
-                  <div className="text-sm font-medium text-gray-400">Time</div>
+                  <div className="font-medium text-gray-400 text-md">Time</div>
                 </div>
 
                 {/* Day headers */}
@@ -465,7 +465,7 @@ export default function CalendarPage() {
                       key={time}
                       className="flex items-start h-20 p-2 border-b border-gray-800 bg-gray-800/30"
                     >
-                      <span className="text-xs font-medium text-gray-500">
+                      <span className="font-medium text-gray-500 text-md">
                         {time}
                       </span>
                     </div>

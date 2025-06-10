@@ -114,12 +114,9 @@ export default function StudentDashboard() {
   const fetchStudentData = async () => {
     try {
       const data = await fetchData("/student/data/", "POST", {}, false);
-      console.log("Student data response:", data); // Debug log
       setStudentData(data.student_data);
       setEditedData(data.student_data);
-    } catch (error) {
-      console.error("Error fetching student data:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchSessionData = async () => {
@@ -127,7 +124,6 @@ export default function StudentDashboard() {
       const data = await fetchData("/batch/get_batch_sessions/", "POST", {});
       setSessionData(data);
     } catch (error) {
-      console.error("Error fetching session data:", error);
     } finally {
       setLoading(false);
     }
@@ -136,12 +132,12 @@ export default function StudentDashboard() {
   const fetchAttendanceHistory = async () => {
     try {
       setLoadingAttendance(true);
-      const data = await fetchData("/attendance/history/", "POST");
+      const data = await fetchData("/attendance/history/", "POST", null);
       if (data.status === 200) {
         setAttendanceHistory(data.attendance_history);
       }
     } catch (error) {
-      console.error("Error fetching attendance history:", error);
+      console.error(error);
     } finally {
       setLoadingAttendance(false);
     }
@@ -200,11 +196,11 @@ export default function StudentDashboard() {
     const endHour = endTime.getHours();
     const endMinute = endTime.getMinutes();
 
-    const startPosition = (((startHour - 8) * 60 + startMinute) / 60) * 80; // 80px per hour
+    const startPosition = (((startHour - 8) * 60 + startMinute) / 60) * 96; // 96px per hour (24px * 4 quarters)
     const duration =
-      (((endHour - startHour) * 60 + (endMinute - startMinute)) / 60) * 80;
+      (((endHour - startHour) * 60 + (endMinute - startMinute)) / 60) * 96;
 
-    return { top: startPosition, height: Math.max(duration, 40) };
+    return { top: startPosition, height: Math.max(duration, 48) };
   };
 
   const formatTime = (dateTime: string) => {
@@ -255,20 +251,22 @@ export default function StudentDashboard() {
           updateData
         );
 
-        if (response && response.admissionNo) {
+        // Check if response has the expected structure
+        if (response && (response.admissionNo || response.studentName)) {
           // Update local state with the response data
           const updatedStudentData = {
-            admissionNo: response.admissionNo,
-            studentName: response.studentName,
-            rollNo: response.rollNo,
-            studentClass: response.studentClass,
-            gender: response.gender,
-            fatherName: response.fatherName,
-            email: response.email,
-            contactNo: response.contactNo,
-            joinedDate: response.joinedDate,
-            studentPassword: response.studentPassword,
-            profilePic: response.profilePic,
+            admissionNo: response.admissionNo || editedData.admissionNo,
+            studentName: response.studentName || editedData.studentName,
+            rollNo: response.rollNo || editedData.rollNo,
+            studentClass: response.studentClass || editedData.studentClass,
+            gender: response.gender || editedData.gender,
+            fatherName: response.fatherName || editedData.fatherName,
+            email: response.email || editedData.email,
+            contactNo: response.contactNo || editedData.contactNo,
+            joinedDate: response.joinedDate || editedData.joinedDate,
+            studentPassword:
+              response.studentPassword || editedData.studentPassword,
+            profilePic: response.profilePic || editedData.profilePic,
           };
 
           setStudentData(updatedStudentData);
@@ -281,11 +279,22 @@ export default function StudentDashboard() {
             message: "Details updated successfully!",
           });
           setTimeout(() => setUploadMessage(null), 3000);
+        } else if (response && response.error) {
+          // Handle API error response
+          setUploadMessage({
+            type: "error",
+            message: response.error || "Failed to update details.",
+          });
+          setTimeout(() => setUploadMessage(null), 5000);
         } else {
-          throw new Error("Invalid response format");
+          // Handle unexpected response format
+          setUploadMessage({
+            type: "error",
+            message: "Unexpected response from server. Please try again.",
+          });
+          setTimeout(() => setUploadMessage(null), 5000);
         }
       } catch (error) {
-        console.error("Error saving student data:", error);
         setUploadMessage({
           type: "error",
           message: "Failed to update details. Please try again.",
@@ -331,7 +340,6 @@ export default function StudentDashboard() {
         }
       }, 100);
     } catch (error) {
-      console.error("Error accessing camera:", error);
       setUploadMessage({
         type: "error",
         message:
@@ -408,7 +416,6 @@ export default function StudentDashboard() {
             });
           }
         } catch (error) {
-          console.error("Error processing captured photo:", error);
           setUploadMessage({
             type: "error",
             message:
@@ -682,9 +689,9 @@ export default function StudentDashboard() {
                 {timeSlots.map((time, index) => (
                   <div
                     key={time}
-                    className="flex items-start h-20 p-2 border-b border-gray-800 bg-gray-800/30"
+                    className="flex items-start h-24 p-2 border-b border-gray-800 bg-gray-800/30"
                   >
-                    <span className="text-xs font-medium text-gray-500">
+                    <span className="text-sm font-medium text-gray-500">
                       {time}
                     </span>
                   </div>
@@ -701,7 +708,7 @@ export default function StudentDashboard() {
                   {timeSlots.map((time, timeIndex) => (
                     <div
                       key={time}
-                      className="h-20 transition-colors border-b border-gray-800 hover:bg-gray-800/30"
+                      className="h-24 transition-colors border-b border-gray-800 hover:bg-gray-800/30"
                     />
                   ))}
 
@@ -715,7 +722,7 @@ export default function StudentDashboard() {
                       return (
                         <div
                           key={session.id}
-                          className="absolute pointer-events-auto left-1 right-1"
+                          className="absolute p-1 pointer-events-auto left-1 right-1"
                           style={{
                             top: `${position.top}px`,
                             height: `${position.height}px`,

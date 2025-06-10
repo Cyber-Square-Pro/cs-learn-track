@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Cookies from "js-cookie";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,8 +13,13 @@ import {
   Mail,
   Users,
   LogOut,
-  Upload,
+  Camera,
   Clock,
+  CheckCircle,
+  AlertCircle,
+  History,
+  X,
+  Eye,
 } from "lucide-react";
 import { fetchData } from "@/utils/api";
 
@@ -45,6 +51,18 @@ interface StudentData {
   profilePic: string | null;
 }
 
+interface AttendanceRecord {
+  sessionName: string;
+  startDateTime: string;
+  endDateTime: string;
+  status: boolean;
+}
+
+interface AttendanceHistory {
+  attendance_history: AttendanceRecord[];
+  status: number;
+}
+
 const timeSlots = [
   "08:00",
   "09:00",
@@ -71,10 +89,26 @@ export default function StudentDashboard() {
   const [editedData, setEditedData] = useState<StudentData | null>(null);
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadMessage, setUploadMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [attendanceHistory, setAttendanceHistory] = useState<
+    AttendanceRecord[]
+  >([]);
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [faceDetected, setFaceDetected] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
     fetchStudentData();
     fetchSessionData();
+    fetchAttendanceHistory();
   }, []);
 
   const fetchStudentData = async () => {
@@ -96,6 +130,20 @@ export default function StudentDashboard() {
       console.error("Error fetching session data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAttendanceHistory = async () => {
+    try {
+      setLoadingAttendance(true);
+      const data = await fetchData("/attendance/history/", "POST");
+      if (data.status === 200) {
+        setAttendanceHistory(data.attendance_history);
+      }
+    } catch (error) {
+      console.error("Error fetching attendance history:", error);
+    } finally {
+      setLoadingAttendance(false);
     }
   };
 
@@ -193,37 +241,226 @@ export default function StudentDashboard() {
   const handleSaveEdit = async () => {
     if (editedData) {
       try {
-        await fetchData("/student/update", "POST", editedData);
-        setStudentData(editedData);
-        setShowEditModal(false);
+        const updateData = {
+          studentName: editedData.studentName,
+          gender: editedData.gender,
+          fatherName: editedData.fatherName,
+          email: editedData.email,
+          contactNo: editedData.contactNo,
+        };
+
+        const response = await fetchData(
+          "/student/update/",
+          "POST",
+          updateData
+        );
+
+        if (response && response.admissionNo) {
+          // Update local state with the response data
+          const updatedStudentData = {
+            admissionNo: response.admissionNo,
+            studentName: response.studentName,
+            rollNo: response.rollNo,
+            studentClass: response.studentClass,
+            gender: response.gender,
+            fatherName: response.fatherName,
+            email: response.email,
+            contactNo: response.contactNo,
+            joinedDate: response.joinedDate,
+            studentPassword: response.studentPassword,
+            profilePic: response.profilePic,
+          };
+
+          setStudentData(updatedStudentData);
+          setEditedData(updatedStudentData);
+          setShowEditModal(false);
+
+          // Show success message
+          setUploadMessage({
+            type: "success",
+            message: "Details updated successfully!",
+          });
+          setTimeout(() => setUploadMessage(null), 3000);
+        } else {
+          throw new Error("Invalid response format");
+        }
       } catch (error) {
         console.error("Error saving student data:", error);
+        setUploadMessage({
+          type: "error",
+          message: "Failed to update details. Please try again.",
+        });
+        setTimeout(() => setUploadMessage(null), 5000);
       }
     }
   };
 
-  const handleProfilePicUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setProfilePicFile(file);
-      try {
-        const formData = new FormData();
-        formData.append("profilePic", file);
-        await fetchData("/student/upload-profile", "POST", formData, true);
-        // Refresh student data after upload
-        fetchStudentData();
-      } catch (error) {
-        console.error("Error uploading profile picture:", error);
-      }
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove the data:image/...;base64, prefix
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const startCamera = async () => {
+    try {
+      setCameraReady(false);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+        audio: false,
+      });
+      setStream(mediaStream);
+      setShowCamera(true);
+
+      // Wait for the modal to render before setting video source
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play().catch(console.error);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      setUploadMessage({
+        type: "error",
+        message:
+          "Unable to access camera. Please check permissions and try again.",
+      });
+      setTimeout(() => setUploadMessage(null), 5000);
     }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraReady(false);
+    setShowCamera(false);
+  };
+
+  const capturePhoto = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Flip the image horizontally to match the mirror effect
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+
+    // Convert canvas to blob
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) return;
+
+        setIsUploading(true);
+        setUploadMessage(null);
+        stopCamera();
+
+        try {
+          // Convert blob to base64 for face encoding
+          const base64Image = await convertBlobToBase64(blob);
+
+          // Send face encoding request
+          const faceEncodingResponse = await fetchData(
+            "/add_face_encoding/",
+            "POST",
+            {
+              face_image: base64Image,
+            }
+          );
+
+          if (faceEncodingResponse.status === 200) {
+            setUploadMessage({
+              type: "success",
+              message: "Profile picture and face encoding added successfully!",
+            });
+            // Refresh student data after upload
+            fetchStudentData();
+          } else {
+            setUploadMessage({
+              type: "error",
+              message:
+                faceEncodingResponse.message ||
+                "Failed to add face encoding. Please try again.",
+            });
+          }
+        } catch (error) {
+          console.error("Error processing captured photo:", error);
+          setUploadMessage({
+            type: "error",
+            message:
+              "Upload failed. Please ensure the image contains a clear face and try again.",
+          });
+        } finally {
+          setIsUploading(false);
+          setTimeout(() => setUploadMessage(null), 5000);
+        }
+      },
+      "image/jpeg",
+      0.8
+    );
+  };
+
+  const convertBlobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   const calculateAttendance = () => {
     // Mock calculation - implement based on actual attendance data
     return Math.floor(Math.random() * 30) + 70;
   };
+
+  // Mock face detection - replace with actual face detection logic
+  const checkFacePosition = () => {
+    // This is a placeholder - in a real implementation, you would use
+    // face detection libraries like MediaPipe or TensorFlow.js
+    // For now, we'll simulate random face detection
+    const isPositioned = Math.random() > 0.3; // 70% chance of good positioning
+    setFaceDetected(isPositioned);
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cameraReady && showCamera) {
+      // Check face position every 500ms
+      interval = setInterval(checkFacePosition, 500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [cameraReady, showCamera]);
 
   if (loading) {
     return (
@@ -250,6 +487,26 @@ export default function StudentDashboard() {
       </nav>
 
       <div className="container px-6 py-8 mx-auto">
+        {/* Upload Message Alert */}
+        {uploadMessage && (
+          <div
+            className={`mb-6 p-4 rounded-lg border ${
+              uploadMessage.type === "success"
+                ? "bg-green-950/50 border-green-600 text-green-400"
+                : "bg-red-950/50 border-red-600 text-red-400"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {uploadMessage.type === "success" ? (
+                <CheckCircle className="w-5 h-5" />
+              ) : (
+                <AlertCircle className="w-5 h-5" />
+              )}
+              <span>{uploadMessage.message}</span>
+            </div>
+          </div>
+        )}
+
         {/* Student ID Card - Always visible with loading state */}
         <div className="bg-[#1A1A1A] rounded-xl p-6 mb-8 border border-gray-800">
           {studentData ? (
@@ -259,29 +516,44 @@ export default function StudentDashboard() {
                 <div className="relative">
                   <div className="flex items-center justify-center w-32 h-32 mb-4 overflow-hidden bg-gray-700 rounded-full">
                     {studentData.profilePic ? (
-                      <img
+                      <Image
                         src={studentData.profilePic}
                         alt="Profile"
                         className="object-cover w-full h-full"
+                        width={128}
+                        height={128}
+                        priority
                       />
                     ) : (
                       <User size={48} className="text-gray-400" />
                     )}
                   </div>
-                  <label className="absolute right-0 p-2 transition-colors bg-blue-600 rounded-full cursor-pointer bottom-4 hover:bg-blue-700">
-                    <Upload size={16} />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfilePicUpload}
-                      className="hidden"
-                    />
-                  </label>
+                  <button
+                    onClick={startCamera}
+                    disabled={isUploading}
+                    className={`absolute right-0 p-2 transition-colors rounded-full bottom-4 ${
+                      isUploading
+                        ? "bg-gray-600 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    <Camera size={16} />
+                  </button>
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                      <div className="w-6 h-6 border-2 border-blue-400 rounded-full border-t-transparent animate-spin"></div>
+                    </div>
+                  )}
                 </div>
                 <h2 className="text-xl font-bold text-center">
                   {studentData.studentName}
                 </h2>
                 <p className="text-gray-400">Roll No: {studentData.rollNo}</p>
+                {isUploading && (
+                  <p className="mt-2 text-sm text-blue-400">
+                    Processing image...
+                  </p>
+                )}
               </div>
 
               {/* Details Section */}
@@ -304,7 +576,7 @@ export default function StudentDashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <User size={16} className="text-blue-400" />
-                    <span className="text-gray-300">Father's Name:</span>
+                    <span className="text-gray-300">Father&apos;s Name:</span>
                     <span>{studentData.fatherName}</span>
                   </div>
                 </div>
@@ -324,13 +596,6 @@ export default function StudentDashboard() {
                     <span className="text-gray-300">Joined:</span>
                     <span>
                       {new Date(studentData.joinedDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-blue-400" />
-                    <span className="text-gray-300">Attendance:</span>
-                    <span className="text-green-400">
-                      {calculateAttendance()}%
                     </span>
                   </div>
                 </div>
@@ -358,7 +623,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Timetable - Updated to match teacher's view */}
-        <div className="bg-[#1A1A1A] rounded-xl p-6 border border-gray-800">
+        <div className="bg-[#1A1A1A] rounded-xl p-6 border border-gray-800 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="flex items-center gap-2 text-2xl font-bold text-white">
               <Calendar className="w-8 h-8" />
@@ -496,6 +761,99 @@ export default function StudentDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Attendance History */}
+        <div className="bg-[#1A1A1A] rounded-xl p-6 border border-gray-800">
+          <div className="flex items-center gap-2 mb-6">
+            <History className="w-8 h-8 text-blue-400" />
+            <h2 className="text-2xl font-bold text-white">
+              Attendance History
+            </h2>
+          </div>
+
+          {loadingAttendance ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-blue-400 rounded-full border-t-transparent animate-spin"></div>
+              <span className="ml-2 text-gray-400">
+                Loading attendance history...
+              </span>
+            </div>
+          ) : attendanceHistory.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="p-4 font-medium text-left text-gray-300">
+                      Session Name
+                    </th>
+                    <th className="p-4 font-medium text-left text-gray-300">
+                      Date
+                    </th>
+                    <th className="p-4 font-medium text-left text-gray-300">
+                      Time
+                    </th>
+                    <th className="p-4 font-medium text-center text-gray-300">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attendanceHistory.map((record, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-800 hover:bg-gray-800/30"
+                    >
+                      <td className="p-4 text-white">{record.sessionName}</td>
+                      <td className="p-4 text-gray-300">
+                        {new Date(record.startDateTime).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </td>
+                      <td className="p-4 text-gray-300">
+                        {formatTime(record.startDateTime)} -{" "}
+                        {formatTime(record.endDateTime)}
+                      </td>
+                      <td className="p-4 text-center">
+                        <span
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
+                            record.status
+                              ? "bg-green-950/50 text-green-400 border border-green-600"
+                              : "bg-red-950/50 text-red-400 border border-red-600"
+                          }`}
+                        >
+                          {record.status ? (
+                            <>
+                              <CheckCircle className="w-4 h-4" />
+                              Present
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="w-4 h-4" />
+                              Absent
+                            </>
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+              <History className="w-16 h-16 mb-4 text-gray-600" />
+              <p className="text-lg">No attendance history found</p>
+              <p className="text-sm">
+                Your attendance records will appear here once sessions begin
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Edit Modal */}
@@ -546,7 +904,7 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium">
-                  Father's Name
+                  Father&apos;s Name
                 </label>
                 <input
                   type="text"
@@ -570,6 +928,140 @@ export default function StudentDashboard() {
                 className="px-4 py-2 transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Camera Modal */}
+      {showCamera && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="bg-[#1A1A1A] rounded-xl p-6 w-full max-w-md mx-4 border border-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Take Profile Picture</h3>
+              <button
+                onClick={stopCamera}
+                className="p-2 text-gray-400 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Instructions */}
+            <div className="p-3 mb-4 border rounded-lg bg-blue-950/30 border-blue-600/30">
+              <div className="flex items-start gap-2">
+                <Eye className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-300">
+                  <p className="mb-1 font-medium">Position your face:</p>
+                  <ul className="space-y-1 text-xs text-blue-200">
+                    <li>• Center your face in the oval guide</li>
+                    <li>• Look directly at the camera</li>
+                    <li>• Ensure good lighting on your face</li>
+                    <li>• Remove glasses if possible</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Face position status */}
+            {cameraReady && (
+              <div
+                className={`mb-4 p-2 rounded-lg text-center text-sm font-medium ${
+                  faceDetected
+                    ? "bg-green-950/30 border border-green-600/30 text-green-400"
+                    : "bg-red-950/30 border border-red-600/30 text-red-400"
+                }`}
+              >
+                {faceDetected
+                  ? "✓ Face positioned correctly"
+                  : "⚠ Adjust your position"}
+              </div>
+            )}
+
+            <div className="relative mb-4">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="object-cover w-full h-64 bg-gray-800 rounded-lg"
+                style={{ transform: "scaleX(-1)" }}
+                onLoadedMetadata={() => {
+                  if (videoRef.current) {
+                    videoRef.current.play().catch(console.error);
+                  }
+                }}
+                onCanPlay={() => {
+                  setCameraReady(true);
+                }}
+              />
+              <canvas ref={canvasRef} className="hidden" />
+
+              {/* Face Guide Overlay */}
+              {cameraReady && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="relative">
+                    {/* Oval face guide with dynamic color */}
+                    <div
+                      className={`border-2 rounded-full transition-colors duration-300 ${
+                        faceDetected ? "border-green-400" : "border-red-400"
+                      }`}
+                      style={{
+                        width: "160px",
+                        height: "200px",
+                        boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.3)",
+                      }}
+                    />
+
+                    {/* Guide text with dynamic color */}
+                    <div
+                      className={`absolute px-2 py-1 text-xs transform -translate-x-1/2 rounded -bottom-8 left-1/2 bg-black/50 whitespace-nowrap transition-colors duration-300 ${
+                        faceDetected ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {faceDetected
+                        ? "Perfect! Ready to capture"
+                        : "Align your face with the guide"}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Loading indicator while camera initializes */}
+              {!cameraReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 rounded-lg">
+                  <div className="text-center">
+                    <div className="w-8 h-8 mx-auto mb-2 border-2 border-blue-400 rounded-full border-t-transparent animate-spin"></div>
+                    <p className="text-sm text-gray-300">
+                      Initializing camera...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={capturePhoto}
+                disabled={!cameraReady}
+                className={`flex-1 px-4 py-2 transition-colors rounded-lg disabled:cursor-not-allowed ${
+                  cameraReady && faceDetected
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-gray-600 text-gray-300"
+                } disabled:bg-gray-600`}
+              >
+                {!cameraReady
+                  ? "Initializing..."
+                  : faceDetected
+                  ? "Capture Photo"
+                  : "Position Face First"}
+              </button>
+              <button
+                onClick={stopCamera}
+                className="px-4 py-2 transition-colors bg-gray-600 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
               </button>
             </div>
           </div>

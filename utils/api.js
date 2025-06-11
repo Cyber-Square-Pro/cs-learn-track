@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 // Remove the incorrect zod import
-const API_BASE_URL = "http://api.learn-track.pro.cybersquare.org";
+const API_BASE_URL = "https://whippet-guided-adequately.ngrok-free.app";
 
 const fetchData = async (
   endpoint,

@@ -8,6 +8,8 @@ import {
   GraduationCap,
   Users,
   Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +64,8 @@ export default function StudentManagement() {
   const [studentList, setStudentList] = useState<Student[]>([]);
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -87,11 +91,13 @@ export default function StudentManagement() {
   const fetchBatchStudents = async (batchId: string) => {
     if (batchId === "all") {
       setStudentList([]);
+      setCurrentPage(1);
       return;
     }
 
     try {
       setLoadingStudents(true);
+      setCurrentPage(1);
       const response = await fetchData("/batch/list_batch_students/", "POST", {
         batch_id: parseInt(batchId),
       });
@@ -113,7 +119,7 @@ export default function StudentManagement() {
 
   // Filter students based on search term
   const filteredStudents = useMemo(() => {
-    return studentList.filter((student) => {
+    const filtered = studentList.filter((student) => {
       const matchesSearch =
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.admissionNo.toString().includes(searchTerm.toLowerCase()) ||
@@ -121,7 +127,33 @@ export default function StudentManagement() {
 
       return matchesSearch;
     });
+
+    // Reset to first page when search changes
+    if (searchTerm) {
+      setCurrentPage(1);
+    }
+
+    return filtered;
   }, [searchTerm, studentList]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentStudents = filteredStudents.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const goToPrevious = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
 
   // View student details
   const viewStudentDetails = (student: Student) => {
@@ -132,6 +164,7 @@ export default function StudentManagement() {
   // Handle batch selection
   const handleBatchChange = (value: string) => {
     setSelectedBatch(value);
+    setCurrentPage(1);
     fetchBatchStudents(value);
   };
 
@@ -238,8 +271,8 @@ export default function StudentManagement() {
                         Loading students...
                       </TableCell>
                     </TableRow>
-                  ) : filteredStudents.length > 0 ? (
-                    filteredStudents.map((student, index) => (
+                  ) : currentStudents.length > 0 ? (
+                    currentStudents.map((student, index) => (
                       <TableRow
                         key={student.admissionNo}
                         className="border-b border-[#2d2d4a] hover:bg-[#232442]"
@@ -305,6 +338,76 @@ export default function StudentManagement() {
                   )}
                 </TableBody>
               </Table>
+
+              {/* Pagination */}
+              {filteredStudents.length > itemsPerPage && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#2d2d4a]">
+                  <div className="text-sm text-[#b8b8d4]">
+                    Showing {startIndex + 1} to{" "}
+                    {Math.min(endIndex, filteredStudents.length)} of{" "}
+                    {filteredStudents.length} students
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={goToPrevious}
+                      disabled={currentPage === 1}
+                      className="text-[#b8b8d4] hover:text-white hover:bg-[#2d2d4a] disabled:opacity-50"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </Button>
+
+                    <div className="flex items-center space-x-1">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={
+                                currentPage === pageNum ? "default" : "ghost"
+                              }
+                              size="sm"
+                              onClick={() => goToPage(pageNum)}
+                              className={
+                                currentPage === pageNum
+                                  ? "bg-[#8a85ff] text-white hover:bg-[#a5a1ff]"
+                                  : "text-[#b8b8d4] hover:text-white hover:bg-[#2d2d4a]"
+                              }
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={goToNext}
+                      disabled={currentPage === totalPages}
+                      className="text-[#b8b8d4] hover:text-white hover:bg-[#2d2d4a] disabled:opacity-50"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </main>
         </div>

@@ -116,7 +116,9 @@ export default function StudentDashboard() {
       const data = await fetchData("/student/data/", "POST", {}, false);
       setStudentData(data.student_data);
       setEditedData(data.student_data);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    }
   };
 
   const fetchSessionData = async () => {
@@ -393,7 +395,7 @@ export default function StudentDashboard() {
 
           // Send face encoding request
           const faceEncodingResponse = await fetchData(
-            "/add_face_encoding/",
+            "/add_pfp_and_face_encoding/",
             "POST",
             {
               face_image: base64Image,
@@ -524,7 +526,7 @@ export default function StudentDashboard() {
                   <div className="flex items-center justify-center w-32 h-32 mb-4 overflow-hidden bg-gray-700 rounded-full">
                     {studentData.profilePic ? (
                       <Image
-                        src={studentData.profilePic}
+                        src={`data:image/jpeg;base64,${studentData.profilePic}`}
                         alt="Profile"
                         className="object-cover w-full h-full"
                         width={128}
@@ -543,6 +545,11 @@ export default function StudentDashboard() {
                         ? "bg-gray-600 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
                     }`}
+                    title={
+                      studentData.profilePic
+                        ? "Update profile picture"
+                        : "Add profile picture"
+                    }
                   >
                     <Camera size={16} />
                   </button>
@@ -556,6 +563,11 @@ export default function StudentDashboard() {
                   {studentData.studentName}
                 </h2>
                 <p className="text-gray-400">Roll No: {studentData.rollNo}</p>
+                {!studentData.profilePic && (
+                  <p className="mt-1 text-xs text-center text-gray-500">
+                    Click camera icon to add profile picture
+                  </p>
+                )}
                 {isUploading && (
                   <p className="mt-2 text-sm text-blue-400">
                     Processing image...
